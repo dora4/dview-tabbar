@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<resources>
+
+    <declare-styleable name="DoraTabBar">
+        <attr name="dview_indicatorHeight" format="dimension|reference" />
+        <attr name="dview_indicatorColor" format="color|reference" />
+        <attr name="dview_tabHorizontalPadding" format="dimension|reference" />
+        <attr name="dview_tabVerticalPadding" format="dimension|reference" />
+        <attr name="dview_tabColor" format="color|reference" />
+        <attr name="dview_tabTextSize" format="dimension|reference" />
+        <attr name="dview_tabTextColor" format="color|reference" />
+        <attr name="dview_tabSelectedTextColor" format="color|reference" />
+        <attr name="dview_isDivide" format="boolean" />
+        <attr name="dview_textAllCaps" format="boolean" />
+    </declare-styleable>
+</resources>
