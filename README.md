@@ -24,3 +24,34 @@ dependencies {
     implementation 'com.github.dora4:dview-tabbar:1.1'
 }
 ```
+
+#### 使用控件
+
+```kotlin
+        binding.tabBar.addTextTab("频道1")
+        binding.tabBar.addTextTab("频道2")
+        binding.tabBar.addTextTab("频道3")
+        binding.tabBar.setOnTabClickListener(object : DoraTabBar.OnTabClickListener {
+
+            override fun onTabClick(view: View, position: Int) {
+                when (position) {
+                    0 -> {
+                        showPage(pageOne)
+                    }
+
+                    1 -> {
+                        showPage(pageTwo)
+                    }
+
+                    2 -> {
+                        showPage(pageThree)
+                    }
+                }
+            }
+        })
+```
+
+#### 示例代码
+
+https://github.com/dora4/dora_samples
+
