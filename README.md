@@ -1,6 +1,7 @@
 dview-tabbar
 ![Release](https://jitpack.io/v/dora4/dview-tabbar.svg)
 --------------------------------
+![DORA视图 多界掌控者](https://github.com/user-attachments/assets/0df8e362-0fcc-4ba1-82f2-52a64a8a424d)
 
 ##### 卡名：Dora视图 TabBar 
 ###### 卡片类型：效果怪兽
