@@ -21,7 +21,16 @@ dependencies {
 ```
 
 #### 使用控件
-
+```xml
+        <dora.widget.DoraTabBar
+            android:id="@+id/tabBar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:dview_isDivide="true"
+            app:dview_tabVerticalPadding="5dp"
+            app:dview_indicatorColor="@color/primary"
+            app:dview_tabSelectedTextColor="@color/primary"/>
+```
 ```kotlin
         binding.tabBar.addTextTab("频道1")
         binding.tabBar.addTextTab("频道2")
