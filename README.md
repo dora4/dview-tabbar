@@ -27,7 +27,7 @@ dependencies {
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:dview_isDivide="true"
-            app:dview_tabVerticalPadding="10dp"
+            app:dview_tabVerticalPadding="15dp"
             app:dview_indicatorColor="@color/primary"
             app:dview_tabSelectedTextColor="@color/primary"/>
 ```
