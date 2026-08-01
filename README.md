@@ -34,10 +34,7 @@ dependencies {
             app:dview_tabSelectedTextColor="@color/sky_blue"
             app:dview_indicatorType="NORMAL"
             app:dview_indicatorColor="@color/sky_blue"
-            app:dview_tabPadding="10dp"
-            app:dview_iconGravity="LEFT"
-            app:dview_iconWidth="20dp"
-            app:dview_iconHeight="20dp"/>
+            app:dview_tabPadding="10dp" />
 ```
 
 ```kotlin
