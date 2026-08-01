@@ -1918,10 +1918,10 @@ class DoraTabBar @JvmOverloads constructor(
         val tabTitle: String,
 
         @get:DrawableRes
-        val tabSelectedIcon: Int?,
+        val tabSelectedIcon: Int? = null,
 
         @get:DrawableRes
-        val tabUnselectedIcon: Int?
+        val tabUnselectedIcon: Int? = null
     )
 
     /**
