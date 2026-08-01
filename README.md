@@ -16,43 +16,51 @@ allprojects {
 }
 // 添加以下代码到app模块的build.gradle
 dependencies {
-    implementation 'com.github.dora4:dview-tabbar:1.1'
+    implementation 'com.github.dora4:dview-tabbar:1.2'
 }
 ```
 
 #### 使用控件
+
 ```xml
-        <dora.widget.DoraTabBar
-            android:id="@+id/tabBar"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:dview_isDivide="true"
-            app:dview_tabVerticalPadding="15dp"
-            app:dview_indicatorColor="@color/primary"
-            app:dview_tabSelectedTextColor="@color/primary"/>
+<dora.widget.DoraTabBar
+    android:id="@+id/tabBar"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    app:dview_tabIsDivided="true"
+    app:dview_tabPadding="15dp"
+    app:dview_indicatorColor="@color/primary"
+    app:dview_tabSelectedTextColor="@color/primary" />
 ```
+
 ```kotlin
-        binding.tabBar.addTextTab("频道1")
-        binding.tabBar.addTextTab("频道2")
-        binding.tabBar.addTextTab("频道3")
-        binding.tabBar.setOnTabClickListener(object : DoraTabBar.OnTabClickListener {
+binding.tabBar.setTabs(arrayOf(DoraTab(), DoraTab(), DoraTab()))
 
-            override fun onTabClick(view: View, position: Int) {
-                when (position) {
-                    0 -> {
-                        showPage(pageOne)
-                    }
+binding.tabBar.setOnTabSelectListener(
+    object : DoraTabBar.OnTabSelectListener {
 
-                    1 -> {
-                        showPage(pageTwo)
-                    }
-
-                    2 -> {
-                        showPage(pageThree)
-                    }
+        override fun onTabSelected(
+            position: Int
+        ) {
+            when (position) {
+                0 -> {
+                    showPage(pageOne)
+                }
+                1 -> {
+                    showPage(pageTwo)
+                }
+                2 -> {
+                    showPage(pageThree)
                 }
             }
-        })
+        }
+
+        override fun onTabReselected(
+            position: Int
+        ) {
+        }
+    }
+)
 ```
 
 #### 示例代码

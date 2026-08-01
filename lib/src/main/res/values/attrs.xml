@@ -3,15 +3,66 @@
 <resources>
 
     <declare-styleable name="DoraTabBar">
+        <attr name="dview_indicatorWidth" format="dimension|reference" />
         <attr name="dview_indicatorHeight" format="dimension|reference" />
         <attr name="dview_indicatorColor" format="color|reference" />
-        <attr name="dview_tabHorizontalPadding" format="dimension|reference" />
-        <attr name="dview_tabVerticalPadding" format="dimension|reference" />
+        <attr name="dview_indicatorMarginLeft" format="dimension|reference" />
+        <attr name="dview_indicatorMarginTop" format="dimension|reference" />
+        <attr name="dview_indicatorMarginRight" format="dimension|reference" />
+        <attr name="dview_indicatorMarginBottom" format="dimension|reference" />
+        <attr name="dview_indicatorCornerRadius" format="dimension|reference" />
+        <attr name="dview_indicatorGravity" format="enum">
+            <enum name="TOP" value="48" />
+            <enum name="BOTTOM" value="80" />
+        </attr>
+        <attr name="dview_indicatorType" format="enum">
+            <enum name="NORMAL" value="0" />
+            <enum name="TRIANGLE" value="1" />
+            <enum name="BLOCK" value="2" />
+        </attr>
+        <attr name="dview_indicatorWidthWrapTitle" format="boolean" />
+
+        <attr name="dview_underlineColor" format="color|reference" />
+        <attr name="dview_underlineHeight" format="dimension|reference" />
+        <attr name="dview_underlineGravity" format="enum">
+            <enum name="TOP" value="48" />
+            <enum name="BOTTOM" value="80" />
+        </attr>
+
+        <attr name="dview_dividerColor" format="color|reference" />
+        <attr name="dview_dividerWidth" format="dimension|reference" />
+        <attr name="dview_dividerPadding" format="dimension|reference"/>
+
+        <attr name="dview_tabIsDivided" format="boolean" />
+        <attr name="dview_tabWidth" format="dimension|reference" />
+        <attr name="dview_tabPadding" format="dimension|reference" />
         <attr name="dview_tabColor" format="color|reference" />
         <attr name="dview_tabTextSize" format="dimension|reference" />
-        <attr name="dview_tabTextColor" format="color|reference" />
+        <attr name="dview_tabUnselectedTextColor" format="color|reference" />
         <attr name="dview_tabSelectedTextColor" format="color|reference" />
-        <attr name="dview_isDivide" format="boolean" />
-        <attr name="dview_textAllCaps" format="boolean" />
+        <attr name="dview_tabTextBold" format="boolean" />
+        <attr name="dview_tabTextAllCaps" format="boolean" />
+
+        <attr name="dview_iconWidth" format="dimension|reference"/>
+        <attr name="dview_iconHeight" format="dimension|reference"/>
+        <attr name="dview_iconVisible" format="boolean"/>
+        <attr name="dview_iconGravity" format="enum">
+            <enum name="LEFT" value="3"/>
+            <enum name="TOP" value="48"/>
+            <enum name="RIGHT" value="5"/>
+            <enum name="BOTTOM" value="80"/>
+            <enum name="START" value="8388611"/>
+            <enum name="END" value="8388613"/>
+        </attr>
+        <attr name="dview_iconMargin" format="dimension|reference"/>
+    </declare-styleable>
+
+    <declare-styleable name="BadgeView">
+        <attr name="dview_bv_backgroundColor" format="color|reference" />
+        <attr name="dview_bv_cornerRadius" format="dimension|reference" />
+        <attr name="dview_bv_strokeWidth" format="dimension|reference" />
+        <attr name="dview_bv_strokeColor" format="color|reference" />
+        <attr name="dview_bv_isRadiusHalfHeight" format="boolean" />
+        <attr name="dview_bv_isWidthEqualsHeight" format="boolean" />
     </declare-styleable>
 </resources>
