@@ -23,15 +23,21 @@ dependencies {
 #### 使用控件
 
 ```xml
-<dora.widget.DoraTabBar
-    android:id="@+id/tabBar"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    app:dview_tabIsDivided="true"
-    app:dview_tabPadding="15dp"
-    app:dview_indicatorColor="@color/primary"
-    app:dview_tabUnselectedTextColor="@color/textPrimary"
-    app:dview_tabSelectedTextColor="@color/primary" />
+        <dora.widget.DoraTabBar
+            android:id="@+id/tabBar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/white"
+            android:paddingVertical="10dp"
+            app:dview_tabIsDivided="false"
+            app:dview_tabUnselectedTextColor="@color/colorTextNormal"
+            app:dview_tabSelectedTextColor="@color/sky_blue"
+            app:dview_indicatorType="NORMAL"
+            app:dview_indicatorColor="@color/sky_blue"
+            app:dview_tabPadding="10dp"
+            app:dview_iconGravity="LEFT"
+            app:dview_iconWidth="20dp"
+            app:dview_iconHeight="20dp"/>
 ```
 
 ```kotlin
