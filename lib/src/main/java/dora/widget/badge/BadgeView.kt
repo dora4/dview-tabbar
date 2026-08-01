@@ -6,6 +6,7 @@ import android.graphics.drawable.GradientDrawable
 import android.graphics.drawable.StateListDrawable
 import android.util.AttributeSet
 import android.util.TypedValue
+import androidx.annotation.ColorInt
 import androidx.appcompat.widget.AppCompatTextView
 import androidx.core.content.withStyledAttributes
 import dora.widget.tabbar.R
@@ -43,7 +44,7 @@ class BadgeView @JvmOverloads constructor(
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
-        if (isWidthHeightEqual() && width > 0 && height > 0) {
+        if (isWidthEqualsHeight() && width > 0 && height > 0) {
             val max = max(width, height)
             val measureSpec = MeasureSpec.makeMeasureSpec(max, MeasureSpec.EXACTLY)
             super.onMeasure(measureSpec, measureSpec)
@@ -91,7 +92,7 @@ class BadgeView @JvmOverloads constructor(
         setBgSelector()
     }
 
-    fun setStrokeColor(strokeColor: Int) {
+    fun setStrokeColor(@ColorInt strokeColor: Int) {
         this.strokeColor = strokeColor
         setBgSelector()
     }
@@ -101,8 +102,8 @@ class BadgeView @JvmOverloads constructor(
         setBgSelector()
     }
 
-    fun setIsWidthHeightEqual(isWidthHeightEqual: Boolean) {
-        this.isWidthEqualsHeight = isWidthHeightEqual
+    fun setWidthEqualsHeight(isWidthEqualsHeight: Boolean) {
+        this.isWidthEqualsHeight = isWidthEqualsHeight
         setBgSelector()
     }
 
@@ -126,7 +127,7 @@ class BadgeView @JvmOverloads constructor(
         return isRadiusHalfHeight
     }
 
-    fun isWidthHeightEqual(): Boolean {
+    fun isWidthEqualsHeight(): Boolean {
         return isWidthEqualsHeight
     }
 

@@ -20,7 +20,6 @@
             <enum name="TRIANGLE" value="1" />
             <enum name="BLOCK" value="2" />
         </attr>
-        <attr name="dview_indicatorWidthWrapTitle" format="boolean" />
 
         <attr name="dview_underlineColor" format="color|reference" />
         <attr name="dview_underlineHeight" format="dimension|reference" />

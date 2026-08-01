@@ -297,12 +297,12 @@ class DoraTabBar @JvmOverloads constructor(
      *      TEXT_BOLD_WHEN_SELECT
      *      TEXT_BOLD_BOTH
      */
-    private var textBold = 0
+    private var tabTextBold = 0
 
     /**
      * 是否将 Tab 标题转换成大写。
      */
-    private var textAllCaps = false
+    private var tabTextAllCaps = false
 
     /**
      * 是否显示 Tab Icon。
@@ -334,6 +334,11 @@ class DoraTabBar @JvmOverloads constructor(
     private var iconMargin = 0f
 
     /**
+     * 控件的高度。
+     */
+    private var viewHeight = 0
+
+    /**
      * 上一次滚动的位置。
      *
      * 避免重复调用 scrollTo()。
@@ -356,24 +361,29 @@ class DoraTabBar @JvmOverloads constructor(
     init {
         // 让 HorizontalScrollView 尽可能占满父容器宽度。
         isFillViewport = true
-
         // 允许当前 View 自己执行 onDraw()。
         // 因为 Indicator、Divider、Underline 都需要由自身绘制。
         setWillNotDraw(false)
-
         // 不裁剪子 View。
         // Badge 等元素如果超出 Tab 范围，需要允许显示。
         clipChildren = false
         clipToPadding = false
-
         // 创建真正承载 Tab View 的 LinearLayout。
         tabContainer = LinearLayout(context)
-
         // 将 Tab 容器添加到 HorizontalScrollView 中。
         addView(tabContainer)
-
         // 从 XML 属性中读取配置。
         obtainAttributes(context, attrs)
+        val height =
+            attrs?.getAttributeValue("http://schemas.android.com/apk/res/android", "layout_height")
+        if (height == LayoutParams.MATCH_PARENT.toString() + "") {
+        } else if (height == LayoutParams.WRAP_CONTENT.toString() + "") {
+        } else {
+            val systemAttrs = intArrayOf(android.R.attr.layout_height)
+            context.withStyledAttributes(attrs, systemAttrs) {
+                viewHeight = getDimensionPixelSize(0, LayoutParams.WRAP_CONTENT)
+            }
+        }
     }
 
     /**
@@ -383,14 +393,12 @@ class DoraTabBar @JvmOverloads constructor(
      */
     private fun obtainAttributes(context: Context, attrs: AttributeSet?) {
         context.withStyledAttributes(attrs, R.styleable.DoraTabBar) {
-
             // Indicator 类型。
             indicatorType =
                 getInt(
                     R.styleable.DoraTabBar_dview_indicatorType,
                     STYLE_NORMAL
                 )
-
             // Indicator 颜色。
             //
             // Block 默认使用蓝灰色，
@@ -403,7 +411,6 @@ class DoraTabBar @JvmOverloads constructor(
                     "#ffffff".toColorInt()
                 }
             )
-
             // Indicator 宽度。
             //
             // Triangle 默认宽度 10dp。
@@ -414,7 +421,6 @@ class DoraTabBar @JvmOverloads constructor(
                     (if (indicatorType == STYLE_TRIANGLE) 10 else -1).toFloat()
                 ).toFloat()
             )
-
             // Indicator 高度。
             //
             // Triangle 默认 4dp。
@@ -434,7 +440,6 @@ class DoraTabBar @JvmOverloads constructor(
                             ).toFloat()
                 ).toFloat()
             )
-
             // Indicator 圆角。
             //
             // Block 默认 -1，表示自动根据高度计算最大圆角。
@@ -445,159 +450,128 @@ class DoraTabBar @JvmOverloads constructor(
                     (if (indicatorType == STYLE_BLOCK) -1 else 0).toFloat()
                 ).toFloat()
             )
-
             // Indicator 四周 Margin。
             indicatorMarginLeft = getDimension(
                 R.styleable.DoraTabBar_dview_indicatorMarginLeft,
                 dp2px(0f).toFloat()
             )
-
             indicatorMarginTop = getDimension(
                 R.styleable.DoraTabBar_dview_indicatorMarginTop,
                 dp2px(
                     (if (indicatorType == STYLE_BLOCK) 7 else 0).toFloat()
                 ).toFloat()
             )
-
             indicatorMarginRight = getDimension(
                 R.styleable.DoraTabBar_dview_indicatorMarginRight,
                 dp2px(0f).toFloat()
             )
-
             indicatorMarginBottom = getDimension(
                 R.styleable.DoraTabBar_dview_indicatorMarginBottom,
                 dp2px(
                     (if (indicatorType == STYLE_BLOCK) 7 else 0).toFloat()
                 ).toFloat()
             )
-
             // Indicator 在顶部还是底部。
             indicatorGravity =
                 getInt(
                     R.styleable.DoraTabBar_dview_indicatorGravity,
                     Gravity.BOTTOM
                 )
-
-            // 是否让 Indicator 宽度包裹标题。
-            indicatorWidthWrapTitle =
-                getBoolean(
-                    R.styleable.DoraTabBar_dview_indicatorWidthWrapTitle,
-                    false
-                )
-
             // 整体 Underline。
             underlineColor =
                 getColor(
                     R.styleable.DoraTabBar_dview_underlineColor,
                     "#ffffff".toColorInt()
                 )
-
             underlineHeight =
                 getDimension(
                     R.styleable.DoraTabBar_dview_underlineHeight,
                     dp2px(0f).toFloat()
                 )
-
             underlineGravity =
                 getInt(
                     R.styleable.DoraTabBar_dview_underlineGravity,
                     Gravity.BOTTOM
                 )
-
             // Tab Divider。
             dividerColor =
                 getColor(
                     R.styleable.DoraTabBar_dview_dividerColor,
                     "#ffffff".toColorInt()
                 )
-
             dividerWidth =
                 getDimension(
                     R.styleable.DoraTabBar_dview_dividerWidth,
                     dp2px(0f).toFloat()
                 )
-
             dividerPadding =
                 getDimension(
                     R.styleable.DoraTabBar_dview_dividerPadding,
                     dp2px(12f).toFloat()
                 )
-
             // Tab 文字。
             tabTextSize = getDimension(
                 R.styleable.DoraTabBar_dview_tabTextSize,
                 sp2px(14f).toFloat()
             )
-
             tabTextSelectedColor =
                 getColor(
                     R.styleable.DoraTabBar_dview_tabSelectedTextColor,
-                    "#ffffff".toColorInt()
+                    "#FFFFFF".toColorInt()
                 )
-
             tabTextUnselectedColor =
                 getColor(
                     R.styleable.DoraTabBar_dview_tabUnselectedTextColor,
-                    "#AAffffff".toColorInt()
+                    "#AAFFFFFF".toColorInt()
                 )
-
-            textBold =
+            tabTextBold =
                 getInt(
                     R.styleable.DoraTabBar_dview_tabTextBold,
                     TEXT_BOLD_NONE
                 )
-
-            textAllCaps =
+            tabTextAllCaps =
                 getBoolean(
                     R.styleable.DoraTabBar_dview_tabTextAllCaps,
                     false
                 )
-
             // Icon。
             iconVisible =
                 getBoolean(
                     R.styleable.DoraTabBar_dview_iconVisible,
                     true
                 )
-
             iconGravity =
                 getInt(
                     R.styleable.DoraTabBar_dview_iconGravity,
                     Gravity.TOP
                 )
-
             iconWidth =
                 getDimension(
                     R.styleable.DoraTabBar_dview_iconWidth,
                     dp2px(0f).toFloat()
                 )
-
             iconHeight =
                 getDimension(
                     R.styleable.DoraTabBar_dview_iconHeight,
                     dp2px(0f).toFloat()
                 )
-
             iconMargin =
                 getDimension(
                     R.styleable.DoraTabBar_dview_iconMargin,
                     dp2px(2.5f).toFloat()
                 )
-
             // Tab 是否平均分割。
             tabIsDivided =
                 getBoolean(
                     R.styleable.DoraTabBar_dview_tabIsDivided,
                     false
                 )
-
             // Tab 固定宽度。
             tabWidth =
                 getDimension(
                     R.styleable.DoraTabBar_dview_tabWidth,
                     dp2px(-1f).toFloat()
                 )
-
             // Tab Padding。
             //
             // 如果 Tab 使用固定宽度或分割模式，
@@ -614,72 +588,6 @@ class DoraTabBar @JvmOverloads constructor(
                             ).toFloat()
                 )
         }
-    }
-
-    /**
-     * 根据父容器传入的 heightMeasureSpec 计算自身高度。
-     *
-     * 这里直接根据 MeasureSpec 模式返回高度：
-     *
-     * EXACTLY：
-     *      父容器明确指定高度，例如 50dp。
-     *
-     * AT_MOST：
-     *      父容器指定最大高度。
-     *
-     * UNSPECIFIED：
-     *      父容器没有指定限制，此时使用 WRAP_CONTENT。
-     */
-    private fun resolveHeight(heightMeasureSpec: Int): Int {
-        return when (MeasureSpec.getMode(heightMeasureSpec)) {
-
-            // 精确高度。
-            MeasureSpec.EXACTLY -> {
-                MeasureSpec.getSize(heightMeasureSpec)
-            }
-
-            // 最大高度。
-            MeasureSpec.AT_MOST -> {
-                MeasureSpec.getSize(heightMeasureSpec)
-            }
-
-            // 没有限制。
-            MeasureSpec.UNSPECIFIED -> {
-                LayoutParams.WRAP_CONTENT
-            }
-
-            // 理论上不会走到这里。
-            else -> {
-                LayoutParams.WRAP_CONTENT
-            }
-        }
-    }
-
-    /**
-     * 测量 DoraTabBar 自身尺寸。
-     *
-     * 当前实现：
-     *
-     * 宽度：
-     *      直接使用父容器传入的 width size。
-     *
-     * 高度：
-     *      通过 resolveHeight() 计算。
-     *
-     * 注意：
-     * 该实现没有进一步测量 tabContainer，
-     * 因此属于一个比较直接的自定义测量方案。
-     */
-    override fun onMeasure(
-        widthMeasureSpec: Int,
-        heightMeasureSpec: Int
-    ) {
-        val height = resolveHeight(heightMeasureSpec)
-
-        setMeasuredDimension(
-            MeasureSpec.getSize(widthMeasureSpec),
-            height
-        )
     }
 
     /**
@@ -726,7 +634,6 @@ class DoraTabBar @JvmOverloads constructor(
     ) {
         this.tabs.clear()
         this.tabs.addAll(tabs)
-
         // 重新创建 Tab。
         notifyDataSetChanged()
     }
@@ -743,21 +650,15 @@ class DoraTabBar @JvmOverloads constructor(
      * 5. 最后统一更新 Tab 样式。
      */
     fun notifyDataSetChanged() {
-
         // 删除旧 View。
         tabContainer.removeAllViews()
-
         // 更新数量。
         tabCount = tabs.size
-
         // 获取经过 RTL/LTR 处理后的真实 Gravity。
         val realGravity = resolveIconGravity()
-
         for (i in 0 until tabCount) {
-
             // 根据 Icon 位置选择对应布局。
             val tabView = when (realGravity) {
-
                 Gravity.LEFT -> {
                     inflate(
                         context,
@@ -765,7 +666,6 @@ class DoraTabBar @JvmOverloads constructor(
                         null
                     )
                 }
-
                 Gravity.RIGHT -> {
                     inflate(
                         context,
@@ -773,7 +673,6 @@ class DoraTabBar @JvmOverloads constructor(
                         null
                     )
                 }
-
                 Gravity.BOTTOM -> {
                     inflate(
                         context,
@@ -781,7 +680,6 @@ class DoraTabBar @JvmOverloads constructor(
                         null
                     )
                 }
-
                 Gravity.TOP -> {
                     inflate(
                         context,
@@ -789,7 +687,6 @@ class DoraTabBar @JvmOverloads constructor(
                         null
                     )
                 }
-
                 else -> {
                     inflate(
                         context,
@@ -798,10 +695,8 @@ class DoraTabBar @JvmOverloads constructor(
                     )
                 }
             }
-
             // 将 position 保存到 View tag。
             tabView.tag = i
-
             // 将 Tab 加入容器。
             addTab(
                 i,
@@ -809,7 +704,6 @@ class DoraTabBar @JvmOverloads constructor(
                 tabView
             )
         }
-
         // 创建完所有 Tab 后统一应用样式。
         updateTabStyles()
     }
@@ -853,53 +747,33 @@ class DoraTabBar @JvmOverloads constructor(
         entity: DoraTab,
         tabView: View
     ) {
-
         // 获取标题 TextView。
-        val tvTabTitle =
-            tabView.findViewById<TextView>(
-                R.id.tv_tab_title
-            )
-
+        val tvTabTitle = tabView.findViewById<TextView>(R.id.tv_tab_title)
         // 获取图标 ImageView。
-        val ivTabIcon =
-            tabView.findViewById<ImageView>(
-                R.id.iv_tab_icon
-            )
-
+        val ivTabIcon = tabView.findViewById<ImageView>(R.id.iv_tab_icon)
         // 设置标题。
         tvTabTitle.text = entity.tabTitle
-
         // 默认先设置未选中图标。
         ivTabIcon.setImageResource(
             entity.tabUnselectedIcon
         )
-
         // 获取 Tab 内容容器。
-        val contentLayout =
-            tabView.findViewById<LinearLayout>(
-                R.id.ll_tab
-            )
-
+        val contentLayout = tabView.findViewById<LinearLayout>(R.id.ll_tab)
         contentLayout?.let {
-
             when (resolveIconGravity()) {
-
                 // Icon 在左边：
                 // 横向排列：Icon + Text。
                 Gravity.LEFT -> {
                     it.orientation = LinearLayout.HORIZONTAL
                     it.gravity = Gravity.CENTER_VERTICAL
                 }
-
                 // Icon 在右边：
                 // 横向排列：Text + Icon。
                 Gravity.RIGHT -> {
                     it.orientation = LinearLayout.HORIZONTAL
                     it.gravity = Gravity.CENTER_VERTICAL
-
                     // 重新调整子 View 顺序。
                     it.removeAllViews()
-
                     it.addView(
                         tvTabTitle,
                         LinearLayout.LayoutParams(
@@ -907,7 +781,6 @@ class DoraTabBar @JvmOverloads constructor(
                             LayoutParams.WRAP_CONTENT
                         )
                     )
-
                     it.addView(
                         ivTabIcon,
                         LinearLayout.LayoutParams(
@@ -916,26 +789,21 @@ class DoraTabBar @JvmOverloads constructor(
                         )
                     )
                 }
-
                 // Icon 在底部：
                 // 垂直排列：Text + Icon。
                 Gravity.BOTTOM -> {
                     it.orientation = LinearLayout.VERTICAL
                     it.gravity = Gravity.CENTER
-
                     it.removeAllViews()
-
                     it.addView(tvTabTitle)
                     it.addView(ivTabIcon)
                 }
-
                 // Icon 在顶部：
                 // 垂直排列：Icon + Text。
                 Gravity.TOP -> {
                     it.orientation = LinearLayout.VERTICAL
                     it.gravity = Gravity.CENTER
                 }
-
                 // 未知情况默认按照顶部处理。
                 else -> {
                     it.orientation = LinearLayout.VERTICAL
@@ -948,24 +816,17 @@ class DoraTabBar @JvmOverloads constructor(
          * Tab 点击事件。
          */
         tabView.setOnClickListener {
-
             // 点击的是其它 Tab。
             if (currentTab != position) {
-
                 // 更新当前选中位置。
                 currentTab = position
-
                 // 更新所有 Tab 的选中状态。
                 updateTabSelection(position)
-
                 // 尝试把当前 Tab 滚动到中间。
                 scrollToCurrentTab()
-
                 // 回调选中事件。
                 onTabSelectListener?.onTabSelected(position)
-
             } else {
-
                 // 点击当前已经选中的 Tab。
                 onTabSelectListener?.onTabReselected(position)
             }
@@ -985,7 +846,6 @@ class DoraTabBar @JvmOverloads constructor(
             },
             LayoutParams.MATCH_PARENT
         )
-
         // 添加到指定位置。
         tabContainer.addView(
             tabView,
@@ -1009,26 +869,14 @@ class DoraTabBar @JvmOverloads constructor(
      * - Icon Margin
      */
     private fun updateTabStyles() {
-
         for (i in 0..<this.tabCount) {
-
             // 获取当前 Tab View。
             val v = tabContainer.getChildAt(i)
-
             // 获取标题。
-            val tvTabTitle =
-                v.findViewById<View?>(
-                    R.id.tv_tab_title
-                ) as TextView?
-
+            val tvTabTitle = v.findViewById<View?>(R.id.tv_tab_title) as TextView?
             // 获取 Icon。
-            val ivTabIcon =
-                v.findViewById<ImageView>(
-                    R.id.iv_tab_icon
-                )
-
+            val ivTabIcon = v.findViewById<ImageView>(R.id.iv_tab_icon)
             if (tvTabTitle != null) {
-
                 // 根据当前 Tab 是否选中设置文字颜色。
                 tvTabTitle.setTextColor(
                     if (i == currentTab) {
@@ -1037,13 +885,11 @@ class DoraTabBar @JvmOverloads constructor(
                         tabTextUnselectedColor
                     }
                 )
-
                 // 设置文字大小。
                 tvTabTitle.setTextSize(
                     TypedValue.COMPLEX_UNIT_PX,
                     tabTextSize
                 )
-
                 // 设置左右 Padding。
                 tvTabTitle.setPadding(
                     tabPadding.toInt(),
@@ -1051,33 +897,25 @@ class DoraTabBar @JvmOverloads constructor(
                     tabPadding.toInt(),
                     0
                 )
-
                 // 是否转换成大写。
-                if (textAllCaps) {
+                if (tabTextAllCaps) {
                     tvTabTitle.text =
                         tvTabTitle.text
                             .toString()
                             .uppercase(Locale.getDefault())
                 }
-
                 // 两种模式下直接设置粗体状态。
-                if (textBold == TEXT_BOLD_BOTH) {
-
+                if (tabTextBold == TEXT_BOLD_BOTH) {
                     // 所有 Tab 都加粗。
                     tvTabTitle.paint.isFakeBoldText = true
-
-                } else if (textBold == TEXT_BOLD_NONE) {
-
+                } else if (tabTextBold == TEXT_BOLD_NONE) {
                     // 所有 Tab 都取消粗体。
                     tvTabTitle.paint.isFakeBoldText = false
                 }
             }
-
             // Icon 是否显示。
             if (iconVisible) {
-
                 ivTabIcon.visibility = VISIBLE
-
                 // 根据配置生成 Icon LayoutParams。
                 val lp = LinearLayout.LayoutParams(
                     if (iconWidth <= 0) {
@@ -1091,37 +929,24 @@ class DoraTabBar @JvmOverloads constructor(
                         iconHeight.toInt()
                     }
                 )
-
                 // 根据 Icon 位置设置间距。
                 if (resolveIconGravity() == Gravity.LEFT) {
-
                     // Icon 在左边，所以右侧留间距。
                     lp.rightMargin = iconMargin.toInt()
-
                 } else if (resolveIconGravity() == Gravity.RIGHT) {
-
                     // Icon 在右边，所以左侧留间距。
                     lp.leftMargin = iconMargin.toInt()
-
                 } else if (resolveIconGravity() == Gravity.BOTTOM) {
-
                     // Icon 在底部，所以顶部留间距。
                     lp.topMargin = iconMargin.toInt()
-
                 } else if (resolveIconGravity() == Gravity.TOP) {
-
                     // Icon 在顶部，所以底部留间距。
                     lp.bottomMargin = iconMargin.toInt()
-
                 } else {
-
                     lp.bottomMargin = iconMargin.toInt()
                 }
-
                 ivTabIcon.layoutParams = lp
-
             } else {
-
                 // 不显示 Icon。
                 ivTabIcon.visibility = GONE
             }
@@ -1138,26 +963,19 @@ class DoraTabBar @JvmOverloads constructor(
      * 则会自动调整 scrollX。
      */
     private fun scrollToCurrentTab() {
-
         // 没有 Tab 时无需处理。
         if (tabCount <= 0) {
             return
         }
-
         // 获取当前 Tab。
         val tab = tabContainer.getChildAt(currentTab)
-
         // 默认滚动到当前 Tab 左边。
         var newScrollX = tab.left
-
         // 调整为让 Tab 尽量居中。
         newScrollX -= width / 2 - tab.width / 2
-
         // 避免重复滚动。
         if (newScrollX != lastScrollX) {
-
             lastScrollX = newScrollX
-
             // 执行横向滚动。
             scrollTo(
                 newScrollX,
@@ -1177,25 +995,16 @@ class DoraTabBar @JvmOverloads constructor(
      * Indicator 的实际绘制由 onDraw() 完成。
      */
     private fun updateTabSelection(position: Int) {
-
         for (i in 0..<this.tabCount) {
-
             // 获取 Tab。
             val tabView =
                 tabContainer.getChildAt(i)
                     ?: continue
-
             // 当前 Tab 是否选中。
             val isSelect = i == position
-
             // 获取标题。
-            val tvTabTitle =
-                tabView.findViewById<View?>(
-                    R.id.tv_tab_title
-                ) as TextView?
-
+            val tvTabTitle = tabView.findViewById<View?>(R.id.tv_tab_title) as TextView?
             if (tvTabTitle != null) {
-
                 // 设置文字颜色。
                 tvTabTitle.setTextColor(
                     if (isSelect) {
@@ -1204,10 +1013,9 @@ class DoraTabBar @JvmOverloads constructor(
                         tabTextUnselectedColor
                     }
                 )
-
                 // 如果配置为仅选中状态加粗，
                 // 则当前 Tab 加粗，其它 Tab 取消加粗。
-                if (textBold == TEXT_BOLD_WHEN_SELECT) {
+                if (tabTextBold == TEXT_BOLD_WHEN_SELECT) {
                     tvTabTitle.paint.isFakeBoldText = isSelect
                 }
             }
@@ -1223,36 +1031,26 @@ class DoraTabBar @JvmOverloads constructor(
      *      则以固定宽度居中显示。
      */
     private fun calcIndicatorRect() {
-
         // 获取当前 Tab。
         val currentTabView =
-            tabContainer.getChildAt(currentTab)
-                ?: return
-
+            tabContainer.getChildAt(currentTab) ?: return
         // 当前 Tab 左边界。
         val left = currentTabView.left
-
         // 当前 Tab 右边界。
         val right = currentTabView.right
-
         // 默认 Indicator 与 Tab 同宽。
         indicatorRect.left = left
         indicatorRect.right = right
-
         // 如果设置了固定 Indicator 宽度，
         // 则让 Indicator 在当前 Tab 中水平居中。
         if (indicatorWidth >= 0) {
-
             val width = indicatorWidth.toInt()
-
             indicatorRect.left =
                 currentTabView.left +
                         (currentTabView.width - width) / 2
-
             indicatorRect.right =
                 indicatorRect.left + width
         }
-
         // 保存 Tab 对应区域。
         tabRect.set(
             indicatorRect.left,
@@ -1277,33 +1075,24 @@ class DoraTabBar @JvmOverloads constructor(
      */
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
-
         // 编辑器预览模式或者没有 Tab 时不绘制。
         if (isInEditMode || this.tabCount <= 0) {
             return
         }
-
         // 当前控件高度。
         val height = getHeight()
-
         // 当前控件左 Padding。
         val paddingLeft = getPaddingLeft()
-
         /**
          * 绘制 Tab Divider。
          */
         if (dividerWidth > 0) {
-
             dividerPaint.strokeWidth = dividerWidth
             dividerPaint.color = dividerColor
-
             // 最后一个 Tab 后面不需要 Divider，
             // 因此只遍历到 tabCount - 2。
             for (i in 0..<this.tabCount - 1) {
-
-                val tab =
-                    tabContainer.getChildAt(i)
-
+                val tab = tabContainer.getChildAt(i)
                 canvas.drawLine(
                     (paddingLeft + tab.right).toFloat(),
                     dividerPadding,
@@ -1321,11 +1110,8 @@ class DoraTabBar @JvmOverloads constructor(
          * 它覆盖整个 tabContainer。
          */
         if (underlineHeight > 0) {
-
             rectPaint.color = underlineColor
-
             if (underlineGravity == Gravity.BOTTOM) {
-
                 // 绘制在底部。
                 canvas.drawRect(
                     paddingLeft.toFloat(),
@@ -1334,9 +1120,7 @@ class DoraTabBar @JvmOverloads constructor(
                     height.toFloat(),
                     rectPaint
                 )
-
             } else {
-
                 // 非 Bottom 默认绘制在顶部。
                 canvas.drawRect(
                     paddingLeft.toFloat(),
@@ -1353,28 +1137,17 @@ class DoraTabBar @JvmOverloads constructor(
 
         /**
          * Triangle Indicator。
-         *
-         * 形状：
-         *
-         *       ▲
-         *      / \
-         *     /   \
          */
         if (indicatorType == STYLE_TRIANGLE) {
-
             if (indicatorHeight > 0) {
-
                 trianglePaint.color = indicatorColor
-
                 // 清空旧 Path。
                 trianglePath.reset()
-
                 // 左下角。
                 trianglePath.moveTo(
                     (paddingLeft + indicatorRect.left).toFloat(),
                     height.toFloat()
                 )
-
                 // 顶部中心点。
                 trianglePath.lineTo(
                     (
@@ -1384,16 +1157,13 @@ class DoraTabBar @JvmOverloads constructor(
                             ).toFloat(),
                     height - indicatorHeight
                 )
-
                 // 右下角。
                 trianglePath.lineTo(
                     (paddingLeft + indicatorRect.right).toFloat(),
                     height.toFloat()
                 )
-
                 // 闭合 Path。
                 trianglePath.close()
-
                 // 绘制三角形。
                 canvas.drawPath(
                     trianglePath,
@@ -1407,18 +1177,14 @@ class DoraTabBar @JvmOverloads constructor(
              * 表现为一个带圆角的矩形背景。
              */
         } else if (indicatorType == STYLE_BLOCK) {
-
             // 高度 < 0 表示自动计算高度。
             if (indicatorHeight < 0) {
-
                 indicatorHeight =
                     height -
                             this.indicatorMarginTop -
                             this.indicatorMarginBottom
             }
-
             if (indicatorHeight > 0) {
-
                 // 如果圆角没有设置，
                 // 或圆角超过高度的一半，
                 // 则最多取高度的一半。
@@ -1429,36 +1195,27 @@ class DoraTabBar @JvmOverloads constructor(
                     indicatorCornerRadius =
                         indicatorHeight / 2
                 }
-
                 // 设置背景颜色。
-                indicatorDrawable.setColor(
-                    indicatorColor
-                )
-
+                indicatorDrawable.setColor(indicatorColor)
                 // 设置矩形区域。
                 indicatorDrawable.setBounds(
                     paddingLeft +
                             indicatorMarginLeft.toInt() +
                             indicatorRect.left,
-
                     indicatorMarginTop.toInt(),
-
                     (
                             paddingLeft +
                                     indicatorRect.right -
                                     this.indicatorMarginRight
                             ).toInt(),
-
                     (
                             this.indicatorMarginTop +
                                     indicatorHeight
                             ).toInt()
                 )
-
                 // 设置圆角。
                 indicatorDrawable.cornerRadius =
                     indicatorCornerRadius
-
                 // 绘制。
                 indicatorDrawable.draw(canvas)
             }
@@ -1469,56 +1226,40 @@ class DoraTabBar @JvmOverloads constructor(
              * 默认是一个普通矩形下划线。
              */
         } else {
-
             if (indicatorHeight > 0) {
-
-                indicatorDrawable.setColor(
-                    indicatorColor
-                )
-
+                indicatorDrawable.setColor(indicatorColor)
                 // Indicator 在底部。
                 if (indicatorGravity == Gravity.BOTTOM) {
-
                     indicatorDrawable.setBounds(
                         paddingLeft +
                                 indicatorMarginLeft.toInt() +
                                 indicatorRect.left,
-
                         height -
                                 indicatorHeight.toInt() -
                                 indicatorMarginBottom.toInt(),
-
                         paddingLeft +
                                 indicatorRect.right -
                                 indicatorMarginRight.toInt(),
-
                         height -
                                 indicatorMarginBottom.toInt()
                     )
 
                 } else {
-
                     // Indicator 在顶部。
                     indicatorDrawable.setBounds(
                         paddingLeft +
                                 indicatorMarginLeft.toInt() +
                                 indicatorRect.left,
-
                         indicatorMarginTop.toInt(),
-
                         paddingLeft +
                                 indicatorRect.right -
                                 indicatorMarginRight.toInt(),
-
                         indicatorHeight.toInt() +
                                 indicatorMarginTop.toInt()
                     )
                 }
-
                 // 设置圆角。
-                indicatorDrawable.cornerRadius =
-                    indicatorCornerRadius
-
+                indicatorDrawable.cornerRadius = indicatorCornerRadius
                 // 绘制 Indicator。
                 indicatorDrawable.draw(canvas)
             }
@@ -1535,7 +1276,6 @@ class DoraTabBar @JvmOverloads constructor(
      */
     fun setIndicatorGravity(indicatorGravity: Int) {
         this.indicatorGravity = indicatorGravity
-
         // 参数发生变化后重新绘制。
         invalidate()
     }
@@ -1553,16 +1293,12 @@ class DoraTabBar @JvmOverloads constructor(
     ) {
         this.indicatorMarginLeft =
             dp2px(indicatorMarginLeft).toFloat()
-
         this.indicatorMarginTop =
             dp2px(indicatorMarginTop).toFloat()
-
         this.indicatorMarginRight =
             dp2px(indicatorMarginRight).toFloat()
-
         this.indicatorMarginBottom =
             dp2px(indicatorMarginBottom).toFloat()
-
         invalidate()
     }
 
@@ -1572,9 +1308,7 @@ class DoraTabBar @JvmOverloads constructor(
     fun setIndicatorWidthEqualTitle(
         indicatorWidthEqualTitle: Boolean
     ) {
-        this.indicatorWidthWrapTitle =
-            indicatorWidthEqualTitle
-
+        this.indicatorWidthWrapTitle = indicatorWidthEqualTitle
         invalidate()
     }
 
@@ -1584,9 +1318,7 @@ class DoraTabBar @JvmOverloads constructor(
     fun setUnderlineGravity(
         underlineGravity: Int
     ) {
-        this.underlineGravity =
-            underlineGravity
-
+        this.underlineGravity = underlineGravity
         invalidate()
     }
 
@@ -1596,8 +1328,7 @@ class DoraTabBar @JvmOverloads constructor(
     fun setSnapOnTabClick(
         snapOnTabClick: Boolean
     ) {
-        this.snapOnTabClick =
-            snapOnTabClick
+        this.snapOnTabClick = snapOnTabClick
     }
 
     /**
@@ -1622,9 +1353,7 @@ class DoraTabBar @JvmOverloads constructor(
     fun setTabPadding(
         padding: Float
     ) {
-        this.tabPadding =
-            dp2px(padding).toFloat()
-
+        this.tabPadding = dp2px(padding).toFloat()
         updateTabStyles()
     }
 
@@ -1634,9 +1363,7 @@ class DoraTabBar @JvmOverloads constructor(
     fun setTabIsDivided(
         isDivided: Boolean
     ) {
-        this.tabIsDivided =
-            isDivided
-
+        this.tabIsDivided = isDivided
         updateTabStyles()
     }
 
@@ -1648,9 +1375,7 @@ class DoraTabBar @JvmOverloads constructor(
     fun setTabWidth(
         width: Float
     ) {
-        this.tabWidth =
-            dp2px(width).toFloat()
-
+        this.tabWidth = dp2px(width).toFloat()
         updateTabStyles()
     }
 
@@ -1661,7 +1386,6 @@ class DoraTabBar @JvmOverloads constructor(
         @ColorInt color: Int
     ) {
         this.indicatorColor = color
-
         invalidate()
     }
 
@@ -1673,9 +1397,7 @@ class DoraTabBar @JvmOverloads constructor(
     fun setIndicatorWidth(
         width: Float
     ) {
-        this.indicatorWidth =
-            dp2px(width).toFloat()
-
+        this.indicatorWidth = dp2px(width).toFloat()
         invalidate()
     }
 
@@ -1687,9 +1409,7 @@ class DoraTabBar @JvmOverloads constructor(
     fun setIndicatorHeight(
         height: Float
     ) {
-        this.indicatorHeight =
-            dp2px(height).toFloat()
-
+        this.indicatorHeight = dp2px(height).toFloat()
         invalidate()
     }
 
@@ -1701,9 +1421,7 @@ class DoraTabBar @JvmOverloads constructor(
     fun setIndicatorCornerRadius(
         radius: Float
     ) {
-        this.indicatorCornerRadius =
-            dp2px(radius).toFloat()
-
+        this.indicatorCornerRadius = dp2px(radius).toFloat()
         invalidate()
     }
 
@@ -1713,9 +1431,7 @@ class DoraTabBar @JvmOverloads constructor(
     fun setUnderlineColor(
         @ColorInt color: Int
     ) {
-        this.underlineColor =
-            color
-
+        this.underlineColor = color
         invalidate()
     }
 
@@ -1727,9 +1443,7 @@ class DoraTabBar @JvmOverloads constructor(
     fun setUnderlineHeight(
         height: Float
     ) {
-        this.underlineHeight =
-            height
-
+        this.underlineHeight = height
         invalidate()
     }
 
@@ -1739,9 +1453,7 @@ class DoraTabBar @JvmOverloads constructor(
     fun setDividerColor(
         @ColorInt color: Int
     ) {
-        this.dividerColor =
-            color
-
+        this.dividerColor = color
         invalidate()
     }
 
@@ -1751,9 +1463,7 @@ class DoraTabBar @JvmOverloads constructor(
     fun setDividerWidth(
         width: Float
     ) {
-        this.dividerWidth =
-            width
-
+        this.dividerWidth = width
         invalidate()
     }
 
@@ -1763,9 +1473,7 @@ class DoraTabBar @JvmOverloads constructor(
     fun setDividerPadding(
         padding: Float
     ) {
-        this.dividerPadding =
-            padding
-
+        this.dividerPadding = padding
         invalidate()
     }
 
@@ -1777,9 +1485,7 @@ class DoraTabBar @JvmOverloads constructor(
     fun setTabTextSize(
         textSize: Float
     ) {
-        this.tabTextSize =
-            sp2px(textSize).toFloat()
-
+        this.tabTextSize = sp2px(textSize).toFloat()
         updateTabStyles()
     }
 
@@ -1789,9 +1495,7 @@ class DoraTabBar @JvmOverloads constructor(
     fun setTabTextSelectedColor(
         @ColorInt color: Int
     ) {
-        this.tabTextSelectedColor =
-            color
-
+        this.tabTextSelectedColor = color
         updateTabStyles()
     }
 
@@ -1801,9 +1505,7 @@ class DoraTabBar @JvmOverloads constructor(
     fun setTabTextUnselectedColor(
         @ColorInt color: Int
     ) {
-        this.tabTextUnselectedColor =
-            color
-
+        this.tabTextUnselectedColor = color
         updateTabStyles()
     }
 
@@ -1819,9 +1521,7 @@ class DoraTabBar @JvmOverloads constructor(
     fun setTabTextBold(
         boldType: Int
     ) {
-        this.textBold =
-            boldType
-
+        this.tabTextBold = boldType
         updateTabStyles()
     }
 
@@ -1831,9 +1531,7 @@ class DoraTabBar @JvmOverloads constructor(
     fun setTabTextAllCaps(
         isTextAllCaps: Boolean
     ) {
-        this.textAllCaps =
-            isTextAllCaps
-
+        this.tabTextAllCaps = isTextAllCaps
         updateTabStyles()
     }
 
@@ -1845,9 +1543,7 @@ class DoraTabBar @JvmOverloads constructor(
     fun getTitleView(
         tab: Int
     ): TextView? {
-        val tabView =
-            tabContainer.getChildAt(tab)
-
+        val tabView = tabContainer.getChildAt(tab)
         return tabView.findViewById<View?>(
             R.id.tv_tab_title
         ) as TextView?
@@ -1864,30 +1560,23 @@ class DoraTabBar @JvmOverloads constructor(
         num: Int
     ) {
         var position = position
-
         // 防止 position 超出范围。
         if (position >= this.tabCount) {
             position = this.tabCount - 1
         }
-
         // 获取对应 Tab。
-        val tabView =
-            tabContainer.getChildAt(position)
-
+        val tabView = tabContainer.getChildAt(position)
         // 获取 Badge。
         val badgeView =
             tabView.findViewById<View?>(
                 R.id.bv_num
             ) as BadgeView?
-
         if (badgeView != null) {
-
             // 显示数字。
             BadgeUtils.showBadge(
                 badgeView,
                 num
             )
-
             // 如果已经初始化过位置，
             // 则不重复计算。
             if (
@@ -1896,19 +1585,15 @@ class DoraTabBar @JvmOverloads constructor(
             ) {
                 return
             }
-
             // Icon 不显示时，
             // Badge 使用一个简单的默认位置。
             if (!iconVisible) {
-
                 setBadgeMargin(
                     position,
                     2f,
                     2f
                 )
-
             } else {
-
                 // Icon 显示时，
                 // 根据 Icon 是左右还是上下排列，
                 // 使用不同的 Badge 间距。
@@ -1927,7 +1612,6 @@ class DoraTabBar @JvmOverloads constructor(
                             ).toFloat()
                 )
             }
-
             // 标记当前 Badge 已初始化。
             initSetMap.put(
                 position,
@@ -1945,11 +1629,9 @@ class DoraTabBar @JvmOverloads constructor(
         position: Int
     ) {
         var position = position
-
         if (position >= this.tabCount) {
             position = this.tabCount - 1
         }
-
         showBadge(
             position,
             0
@@ -1963,19 +1645,15 @@ class DoraTabBar @JvmOverloads constructor(
         position: Int
     ) {
         var position = position
-
         if (position >= this.tabCount) {
             position = this.tabCount - 1
         }
-
         val tabView =
             tabContainer.getChildAt(position)
-
         val badgeView =
             tabView.findViewById<View?>(
                 R.id.bv_num
             ) as BadgeView?
-
         if (badgeView != null) {
             badgeView.visibility = GONE
         }
@@ -2011,45 +1689,25 @@ class DoraTabBar @JvmOverloads constructor(
         bottomPadding: Float
     ) {
         var position = position
-
         if (position >= this.tabCount) {
             position = this.tabCount - 1
         }
-
-        val tabView =
-            tabContainer.getChildAt(position)
-
-        val badgeView =
-            tabView.findViewById<View>(
-                R.id.bv_num
-            ) as BadgeView?
-
+        val tabView = tabContainer.getChildAt(position)
+        val badgeView = tabView.findViewById<View>(R.id.bv_num) as BadgeView?
         if (badgeView != null) {
-
             // 设置文字大小，用于计算文字高度。
             textPaint.textSize = tabTextSize
-
             // 获取文字实际高度。
-            val textHeight =
-                textPaint.descent() -
-                        textPaint.ascent()
-
+            val textHeight = textPaint.descent() - textPaint.ascent()
             // Badge 当前 LayoutParams。
-            val lp =
-                badgeView.layoutParams
-                        as MarginLayoutParams
-
+            val lp = badgeView.layoutParams as MarginLayoutParams
             // 默认使用配置中的 Icon 高度。
             var iconH = iconHeight
-
             var margin = 0f
-
             if (iconVisible) {
-
                 // 没有指定 Icon 高度时，
                 // 使用 Drawable 的 intrinsicHeight。
                 if (iconH <= 0) {
-
                     iconH =
                         ContextCompat
                             .getDrawable(
@@ -2060,7 +1718,6 @@ class DoraTabBar @JvmOverloads constructor(
                             ?.toFloat()
                             ?: 0f
                 }
-
                 // Icon 与文字之间的间距。
                 margin = iconMargin
             }
@@ -2077,28 +1734,15 @@ class DoraTabBar @JvmOverloads constructor(
                 iconGravity == Gravity.TOP ||
                 iconGravity == Gravity.BOTTOM
             ) {
-
                 lp.leftMargin =
                     dp2px(leftPadding)
-
                 lp.topMargin =
-                    if (height > 0) {
-
-                        (
-                                height -
-                                        textHeight -
-                                        iconH -
-                                        margin
-                                ).toInt() / 2 -
-                                dp2px(bottomPadding)
-
+                    if (viewHeight > 0) {
+                        (viewHeight - textHeight - iconH - margin).toInt() / 2 - dp2px(bottomPadding)
                     } else {
-
                         dp2px(bottomPadding)
                     }
-
             } else {
-
                 /**
                  * Icon 左右排列时：
                  *
@@ -2107,25 +1751,13 @@ class DoraTabBar @JvmOverloads constructor(
                  */
                 lp.leftMargin =
                     dp2px(leftPadding)
-
                 lp.topMargin =
-                    if (height > 0) {
-
-                        (
-                                height -
-                                        max(
-                                            textHeight,
-                                            iconH
-                                        )
-                                ).toInt() / 2 -
-                                dp2px(bottomPadding)
-
+                    if (viewHeight > 0) {
+                        (viewHeight - max(textHeight, iconH)).toInt() / 2 - dp2px(bottomPadding)
                     } else {
-
                         dp2px(bottomPadding)
                     }
             }
-
             // 应用新的 Margin。
             badgeView.layoutParams = lp
         }
@@ -2139,16 +1771,12 @@ class DoraTabBar @JvmOverloads constructor(
     fun getBadgeView(
         position: Int
     ): BadgeView? {
-
         var position = position
-
         if (position >= this.tabCount) {
             position = this.tabCount - 1
         }
-
         val tabView =
             tabContainer.getChildAt(position)
-
         return tabView.findViewById<View?>(
             R.id.bv_num
         ) as BadgeView?
@@ -2173,23 +1801,18 @@ class DoraTabBar @JvmOverloads constructor(
     fun setCurrentTab(
         position: Int
     ) {
-
         // 检查下标是否合法。
         if (
             position !in 0..<tabCount
         ) {
             return
         }
-
         // 更新当前 Tab。
         currentTab = position
-
         // 更新文字选中状态。
         updateTabSelection(position)
-
         // 滚动到当前 Tab。
         scrollToCurrentTab()
-
         // 重新绘制 Indicator。
         invalidate()
     }
@@ -2201,21 +1824,17 @@ class DoraTabBar @JvmOverloads constructor(
      * 额外保存 currentTab。
      */
     override fun onSaveInstanceState(): Parcelable {
-
         val bundle = Bundle()
-
         // 保存父类状态。
         bundle.putParcelable(
             "instanceState",
             super.onSaveInstanceState()
         )
-
         // 保存当前 Tab。
         bundle.putInt(
             "currentTab",
             currentTab
         )
-
         return bundle
     }
 
@@ -2232,23 +1851,18 @@ class DoraTabBar @JvmOverloads constructor(
         state: Parcelable?
     ) {
         var state = state
-
         if (state is Bundle) {
-
             val bundle = state
-
             // 恢复当前 Tab。
             currentTab =
                 bundle.getInt(
                     "currentTab"
                 )
-
             // 获取父类保存的状态。
             state =
                 bundle.getParcelable(
                     "instanceState"
                 )
-
             // 如果当前 Tab 不是第一个，
             // 并且 Tab 容器已经有子 View，
             // 则恢复选中样式和滚动位置。
@@ -2256,11 +1870,9 @@ class DoraTabBar @JvmOverloads constructor(
                 currentTab != 0 &&
                 tabContainer.isNotEmpty()
             ) {
-
                 updateTabSelection(
                     currentTab
                 )
-
                 scrollToCurrentTab()
             }
         }
