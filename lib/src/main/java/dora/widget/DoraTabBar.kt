@@ -408,7 +408,7 @@ class DoraTabBar @JvmOverloads constructor(
                 if (indicatorType == STYLE_BLOCK) {
                     "#4B6A87".toColorInt()
                 } else {
-                    "#ffffff".toColorInt()
+                    "#FFFFFF".toColorInt()
                 }
             )
             // Indicator 宽度。
@@ -630,6 +630,20 @@ class DoraTabBar @JvmOverloads constructor(
      * 设置完成后会立即重新创建所有 Tab View。
      */
     fun setTabs(
+        tabs: Array<DoraTab>
+    ) {
+        this.tabs.clear()
+        this.tabs.addAll(tabs)
+        // 重新创建 Tab。
+        notifyDataSetChanged()
+    }
+
+    /**
+     * 设置全部 Tab 数据。
+     *
+     * 设置完成后会立即重新创建所有 Tab View。
+     */
+    fun setTabs(
         tabs: ArrayList<DoraTab>
     ) {
         this.tabs.clear()
@@ -754,9 +768,11 @@ class DoraTabBar @JvmOverloads constructor(
         // 设置标题。
         tvTabTitle.text = entity.tabTitle
         // 默认先设置未选中图标。
-        ivTabIcon.setImageResource(
-            entity.tabUnselectedIcon
-        )
+        entity.tabUnselectedIcon?.let {
+            ivTabIcon.setImageResource(
+                it
+            )
+        }
         // 获取 Tab 内容容器。
         val contentLayout = tabView.findViewById<LinearLayout>(R.id.ll_tab)
         contentLayout?.let {
@@ -1708,15 +1724,17 @@ class DoraTabBar @JvmOverloads constructor(
                 // 没有指定 Icon 高度时，
                 // 使用 Drawable 的 intrinsicHeight。
                 if (iconH <= 0) {
+                    if (tabs[position].tabSelectedIcon != null) {
                     iconH =
                         ContextCompat
                             .getDrawable(
                                 context,
-                                tabs[position].tabSelectedIcon
+                                tabs[position].tabSelectedIcon!!
                             )
                             ?.intrinsicHeight
                             ?.toFloat()
                             ?: 0f
+                        }
                 }
                 // Icon 与文字之间的间距。
                 margin = iconMargin
@@ -1897,13 +1915,13 @@ class DoraTabBar @JvmOverloads constructor(
      */
     data class DoraTab(
 
-        val tabTitle: String?,
+        val tabTitle: String,
 
         @get:DrawableRes
-        val tabSelectedIcon: Int,
+        val tabSelectedIcon: Int?,
 
         @get:DrawableRes
-        val tabUnselectedIcon: Int
+        val tabUnselectedIcon: Int?
     )
 
     /**

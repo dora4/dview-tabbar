@@ -16,7 +16,7 @@ allprojects {
 }
 // 添加以下代码到app模块的build.gradle
 dependencies {
-    implementation 'com.github.dora4:dview-tabbar:1.3'
+    implementation 'com.github.dora4:dview-tabbar:1.4'
 }
 ```
 
@@ -30,11 +30,12 @@ dependencies {
     app:dview_tabIsDivided="true"
     app:dview_tabPadding="15dp"
     app:dview_indicatorColor="@color/primary"
+    app:dview_tabUnselectedTextColor="@color/textPrimary"
     app:dview_tabSelectedTextColor="@color/primary" />
 ```
 
 ```kotlin
-binding.tabBar.setTabs(arrayOf(DoraTab(), DoraTab(), DoraTab()))
+binding.tabBar.setTabs(arrayOf(DoraTab("频道1"), DoraTab("频道2"), DoraTab("频道3")))
 
 binding.tabBar.setOnTabSelectListener(
     object : DoraTabBar.OnTabSelectListener {
@@ -42,6 +43,7 @@ binding.tabBar.setOnTabSelectListener(
         override fun onTabSelected(
             position: Int
         ) {
+            binding.tabBar.setCurrentTab(position)
             when (position) {
                 0 -> {
                     showPage(pageOne)
