@@ -46,6 +46,7 @@ binding.tabBar.setOnTabSelectListener(
         override fun onTabSelected(
             position: Int
         ) {
+            // 修改指示器的选中位置，手动设置，为滑动指示器的性能预留空间
             binding.tabBar.setCurrentTab(position)
             when (position) {
                 0 -> {
