@@ -38,7 +38,11 @@ dependencies {
 ```
 
 ```kotlin
-binding.tabBar.setTabs(arrayOf(DoraTab("频道1"), DoraTab("频道2"), DoraTab("频道3")))
+binding.tabBar.setTabs(arrayOf(
+                DoraTabBar.DoraTab("频道1"),
+                DoraTabBar.DoraTab("频道2"),
+                DoraTabBar.DoraTab("频道3"),
+            ))
 
 binding.tabBar.setOnTabSelectListener(
     object : DoraTabBar.OnTabSelectListener {
