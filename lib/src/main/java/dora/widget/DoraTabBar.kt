@@ -1920,20 +1920,6 @@ class DoraTabBar @JvmOverloads constructor(
     }
 
     /**
-     * Indicator 样式属性。
-     *
-     * 可以直接使用：
-     *
-     * tabBar.indicatorStyle = STYLE_BLOCK
-     */
-    var indicatorStyle: Int
-        get() = indicatorType
-        set(indicatorStyle) {
-            this.indicatorType = indicatorStyle
-            invalidate()
-        }
-
-    /**
      * 设置 Tab 左右 Padding。
      *
      * 单位：dp。
@@ -1968,6 +1954,20 @@ class DoraTabBar @JvmOverloads constructor(
     }
 
     /**
+     * 设置 Indicator 类型。
+     *
+     * 可选：
+     *
+     * INDICATOR_NORMAL
+     * INDICATOR_TRIANGLE
+     * INDICATOR_BLOCK
+     */
+    fun setIndicatorType(@IndicatorType type: Int) {
+        this.indicatorType = type
+        invalidate()
+    }
+
+    /**
      * 设置 Indicator 颜色。
      */
     fun setIndicatorColor(
@@ -1980,9 +1980,21 @@ class DoraTabBar @JvmOverloads constructor(
     /**
      * 设置 Indicator 宽度。
      *
-     * 单位：dp。
+     * 单位：px。
      */
     fun setIndicatorWidth(
+        width: Float
+    ) {
+        this.indicatorWidth = width
+        invalidate()
+    }
+
+    /**
+     * 设置 Indicator 宽度。
+     *
+     * 单位：dp。
+     */
+    fun setIndicatorWidthInDp(
         width: Float
     ) {
         this.indicatorWidth = dp2px(width).toFloat()
@@ -1992,9 +2004,21 @@ class DoraTabBar @JvmOverloads constructor(
     /**
      * 设置 Indicator 高度。
      *
-     * 单位：dp。
+     * 单位：px。
      */
     fun setIndicatorHeight(
+        height: Float
+    ) {
+        this.indicatorHeight = height
+        invalidate()
+    }
+
+    /**
+     * 设置 Indicator 高度。
+     *
+     * 单位：dp。
+     */
+    fun setIndicatorHeightInDp(
         height: Float
     ) {
         this.indicatorHeight = dp2px(height).toFloat()
@@ -2004,9 +2028,21 @@ class DoraTabBar @JvmOverloads constructor(
     /**
      * 设置 Indicator 圆角半径。
      *
-     * 单位：dp。
+     * 单位：px。
      */
     fun setIndicatorCornerRadius(
+        radius: Float
+    ) {
+        this.indicatorCornerRadius = radius
+        invalidate()
+    }
+
+    /**
+     * 设置 Indicator 圆角半径。
+     *
+     * 单位：dp。
+     */
+    fun setIndicatorCornerRadiusInDp(
         radius: Float
     ) {
         this.indicatorCornerRadius = dp2px(radius).toFloat()
@@ -2068,9 +2104,21 @@ class DoraTabBar @JvmOverloads constructor(
     /**
      * 设置 Tab 文字大小。
      *
-     * 参数单位：sp。
+     * 参数单位：px。
      */
     fun setTabTextSize(
+        textSize: Float
+    ) {
+        this.tabTextSize = textSize
+        updateTabStyles()
+    }
+
+    /**
+     * 设置 Tab 文字大小。
+     *
+     * 参数单位：sp。
+     */
+    fun setTabTextSizeInSp(
         textSize: Float
     ) {
         this.tabTextSize = sp2px(textSize).toFloat()
@@ -2107,7 +2155,7 @@ class DoraTabBar @JvmOverloads constructor(
      * TEXT_BOLD_BOTH
      */
     fun setTabTextBold(
-        boldType: Int
+        @TextBoldMode boldType: Int
     ) {
         this.tabTextBold = boldType
         updateTabStyles()
@@ -2549,9 +2597,7 @@ class DoraTabBar @JvmOverloads constructor(
                 currentTab != 0 &&
                 tabContainer.isNotEmpty()
             ) {
-                updateTabSelection(
-                    currentTab
-                )
+                updateTabSelection(currentTab)
                 scrollToCurrentTab()
             }
         }

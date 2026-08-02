@@ -15,7 +15,7 @@ object BadgeUtils {
             badgeView.text = ""
             lp.width = (5 * dm.density).toInt()
             lp.height = (5 * dm.density).toInt()
-            badgeView.setLayoutParams(lp)
+            badgeView.layoutParams = lp
         } else {
             lp.height = (18 * dm.density).toInt()
             when (num) {
@@ -34,17 +34,14 @@ object BadgeUtils {
                     badgeView.text = "99+"
                 }
             }
-            badgeView.setLayoutParams(lp)
+            badgeView.layoutParams = lp
         }
     }
 
-    fun setBadgeSize(rtv: BadgeView?, size: Int) {
-        if (rtv == null) {
-            return
-        }
-        val lp = rtv.layoutParams as RelativeLayout.LayoutParams
+    fun setBadgeSize(badgeView: BadgeView, size: Int) {
+        val lp = badgeView.layoutParams as RelativeLayout.LayoutParams
         lp.width = size
         lp.height = size
-        rtv.setLayoutParams(lp)
+        badgeView.layoutParams = lp
     }
 }

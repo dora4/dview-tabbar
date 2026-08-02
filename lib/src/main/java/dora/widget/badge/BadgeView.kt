@@ -62,7 +62,7 @@ class BadgeView @JvmOverloads constructor(
         }
     }
 
-    override fun setBackgroundColor(backgroundColor: Int) {
+    override fun setBackgroundColor(@ColorInt backgroundColor: Int) {
         this.backgroundColor = backgroundColor
         setBgSelector()
     }
@@ -131,7 +131,7 @@ class BadgeView @JvmOverloads constructor(
         return isWidthEqualsHeight
     }
 
-    private fun setDrawable(gd: GradientDrawable, color: Int, strokeColor: Int) {
+    private fun setDrawable(gd: GradientDrawable, @ColorInt color: Int, @ColorInt strokeColor: Int) {
         gd.setColor(color)
         gd.cornerRadius = cornerRadius.toFloat()
         gd.setStroke(strokeWidth, strokeColor)

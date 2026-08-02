@@ -16,7 +16,7 @@ allprojects {
 }
 // 添加以下代码到app模块的build.gradle
 dependencies {
-    implementation 'com.github.dora4:dview-tabbar:1.9'
+    implementation 'com.github.dora4:dview-tabbar:1.10'
 }
 ```
 
@@ -32,6 +32,7 @@ dependencies {
             app:dview_tb_tabIsDivided="false"
             app:dview_tb_tabUnselectedTextColor="@color/colorTextNormal"
             app:dview_tb_tabSelectedTextColor="@color/sky_blue"
+            app:dview_tb_tabTextBold="SELECT"
             app:dview_tb_indicatorType="NORMAL"
             app:dview_tb_indicatorColor="@color/sky_blue"
             app:dview_tb_tabPadding="10dp" />
