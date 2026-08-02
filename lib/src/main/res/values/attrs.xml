@@ -3,49 +3,50 @@
 <resources>
 
     <declare-styleable name="DoraTabBar">
-        <attr name="dview_indicatorWidth" format="dimension|reference" />
-        <attr name="dview_indicatorHeight" format="dimension|reference" />
-        <attr name="dview_indicatorColor" format="color|reference" />
-        <attr name="dview_indicatorMarginLeft" format="dimension|reference" />
-        <attr name="dview_indicatorMarginTop" format="dimension|reference" />
-        <attr name="dview_indicatorMarginRight" format="dimension|reference" />
-        <attr name="dview_indicatorMarginBottom" format="dimension|reference" />
-        <attr name="dview_indicatorCornerRadius" format="dimension|reference" />
-        <attr name="dview_indicatorGravity" format="enum">
+        <attr name="dview_tb_indicatorWidth" format="dimension|reference" />
+        <attr name="dview_tb_indicatorHeight" format="dimension|reference" />
+        <attr name="dview_tb_indicatorColor" format="color|reference" />
+        <attr name="dview_tb_indicatorMarginLeft" format="dimension|reference" />
+        <attr name="dview_tb_indicatorMarginTop" format="dimension|reference" />
+        <attr name="dview_tb_indicatorMarginRight" format="dimension|reference" />
+        <attr name="dview_tb_indicatorMarginBottom" format="dimension|reference" />
+        <attr name="dview_tb_indicatorCornerRadius" format="dimension|reference" />
+        <attr name="dview_tb_indicatorGravity" format="enum">
             <enum name="TOP" value="48" />
             <enum name="BOTTOM" value="80" />
         </attr>
-        <attr name="dview_indicatorType" format="enum">
+        <attr name="dview_tb_indicatorType" format="enum">
             <enum name="NORMAL" value="0" />
             <enum name="TRIANGLE" value="1" />
             <enum name="BLOCK" value="2" />
         </attr>
+        <attr name="dview_tb_indicatorAnimationDuration" format="integer" />
 
-        <attr name="dview_underlineColor" format="color|reference" />
-        <attr name="dview_underlineHeight" format="dimension|reference" />
-        <attr name="dview_underlineGravity" format="enum">
+        <attr name="dview_tb_underlineColor" format="color|reference" />
+        <attr name="dview_tb_underlineHeight" format="dimension|reference" />
+        <attr name="dview_tb_underlineGravity" format="enum">
             <enum name="TOP" value="48" />
             <enum name="BOTTOM" value="80" />
         </attr>
 
-        <attr name="dview_dividerColor" format="color|reference" />
-        <attr name="dview_dividerWidth" format="dimension|reference" />
-        <attr name="dview_dividerPadding" format="dimension|reference"/>
+        <attr name="dview_tb_dividerColor" format="color|reference" />
+        <attr name="dview_tb_dividerWidth" format="dimension|reference" />
+        <attr name="dview_tb_dividerPadding" format="dimension|reference"/>
 
-        <attr name="dview_tabIsDivided" format="boolean" />
-        <attr name="dview_tabWidth" format="dimension|reference" />
-        <attr name="dview_tabPadding" format="dimension|reference" />
-        <attr name="dview_tabColor" format="color|reference" />
-        <attr name="dview_tabTextSize" format="dimension|reference" />
-        <attr name="dview_tabUnselectedTextColor" format="color|reference" />
-        <attr name="dview_tabSelectedTextColor" format="color|reference" />
-        <attr name="dview_tabTextBold" format="boolean" />
-        <attr name="dview_tabTextAllCaps" format="boolean" />
+        <attr name="dview_tb_tabIsDivided" format="boolean" />
+        <attr name="dview_tb_tabWidth" format="dimension|reference" />
+        <attr name="dview_tb_tabPadding" format="dimension|reference" />
+        <attr name="dview_tb_tabColor" format="color|reference" />
+        <attr name="dview_tb_tabTextSize" format="dimension|reference" />
+        <attr name="dview_tb_tabUnselectedTextColor" format="color|reference" />
+        <attr name="dview_tb_tabSelectedTextColor" format="color|reference" />
+        <attr name="dview_tb_tabTextBold" format="boolean" />
+        <attr name="dview_tb_tabTextAllCaps" format="boolean" />
 
-        <attr name="dview_iconWidth" format="dimension|reference"/>
-        <attr name="dview_iconHeight" format="dimension|reference"/>
-        <attr name="dview_iconVisible" format="boolean"/>
-        <attr name="dview_iconGravity" format="enum">
+        <attr name="dview_tb_iconWidth" format="dimension|reference"/>
+        <attr name="dview_tb_iconHeight" format="dimension|reference"/>
+        <attr name="dview_tb_iconVisible" format="boolean"/>
+        <attr name="dview_tb_iconGravity" format="enum">
             <enum name="LEFT" value="3"/>
             <enum name="TOP" value="48"/>
             <enum name="RIGHT" value="5"/>
@@ -53,7 +54,7 @@
             <enum name="START" value="8388611"/>
             <enum name="END" value="8388613"/>
         </attr>
-        <attr name="dview_iconMargin" format="dimension|reference"/>
+        <attr name="dview_tb_iconMargin" format="dimension|reference"/>
     </declare-styleable>
 
     <declare-styleable name="BadgeView">

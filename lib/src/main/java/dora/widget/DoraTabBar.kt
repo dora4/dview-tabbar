@@ -1,5 +1,6 @@
 package dora.widget
 
+import android.animation.ValueAnimator
 import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Paint
@@ -13,6 +14,7 @@ import android.util.SparseArray
 import android.util.TypedValue
 import android.view.Gravity
 import android.view.View
+import android.view.animation.DecelerateInterpolator
 import android.widget.HorizontalScrollView
 import android.widget.ImageView
 import android.widget.LinearLayout
@@ -87,6 +89,17 @@ class DoraTabBar @JvmOverloads constructor(
     private val tabContainer: LinearLayout
 
     /**
+     * Indicator 动画时长。
+     *
+     * 0：
+     *      立即切换。
+     *
+     * > 0：
+     *      使用动画切换。
+     */
+    private var indicatorAnimationDuration = 250L
+
+    /**
      * 当前选中的 Tab 下标。
      */
     private var currentTab = 0
@@ -114,11 +127,31 @@ class DoraTabBar @JvmOverloads constructor(
     private val tabRect = Rect()
 
     /**
+     * Indicator 动画当前左边位置。
+     */
+    private var indicatorLeft = 0f
+
+    /**
+     * Indicator 动画当前右边位置。
+     */
+    private var indicatorRight = 0f
+
+    /**
+     * Indicator 动画对象。
+     */
+    private var indicatorAnimator: ValueAnimator? = null
+
+    /**
      * Indicator 使用的 Drawable。
      *
      * 主要用于绘制普通 Indicator 和 Block Indicator。
      */
     private val indicatorDrawable = GradientDrawable()
+
+    /**
+     * Indicator 初始化标志。
+     */
+    private var indicatorInitialized = false
 
     /**
      * 用于绘制整体 Underline。
@@ -396,7 +429,7 @@ class DoraTabBar @JvmOverloads constructor(
             // Indicator 类型。
             indicatorType =
                 getInt(
-                    R.styleable.DoraTabBar_dview_indicatorType,
+                    R.styleable.DoraTabBar_dview_tb_indicatorType,
                     STYLE_NORMAL
                 )
             // Indicator 颜色。
@@ -404,7 +437,7 @@ class DoraTabBar @JvmOverloads constructor(
             // Block 默认使用蓝灰色，
             // 其它样式默认使用白色。
             indicatorColor = getColor(
-                R.styleable.DoraTabBar_dview_indicatorColor,
+                R.styleable.DoraTabBar_dview_tb_indicatorColor,
                 if (indicatorType == STYLE_BLOCK) {
                     "#4B6A87".toColorInt()
                 } else {
@@ -416,7 +449,7 @@ class DoraTabBar @JvmOverloads constructor(
             // Triangle 默认宽度 10dp。
             // 其它样式默认 -1，表示根据 Tab 宽度处理。
             indicatorWidth = getDimension(
-                R.styleable.DoraTabBar_dview_indicatorWidth,
+                R.styleable.DoraTabBar_dview_tb_indicatorWidth,
                 dp2px(
                     (if (indicatorType == STYLE_TRIANGLE) 10 else -1).toFloat()
                 ).toFloat()
@@ -427,7 +460,7 @@ class DoraTabBar @JvmOverloads constructor(
             // Block 默认 -1，表示自动撑满。
             // Normal 默认 2dp。
             indicatorHeight = getDimension(
-                R.styleable.DoraTabBar_dview_indicatorHeight,
+                R.styleable.DoraTabBar_dview_tb_indicatorHeight,
                 dp2px(
                     (
                             if (indicatorType == STYLE_TRIANGLE) {
@@ -445,28 +478,28 @@ class DoraTabBar @JvmOverloads constructor(
             // Block 默认 -1，表示自动根据高度计算最大圆角。
             // Normal 默认 0。
             indicatorCornerRadius = getDimension(
-                R.styleable.DoraTabBar_dview_indicatorCornerRadius,
+                R.styleable.DoraTabBar_dview_tb_indicatorCornerRadius,
                 dp2px(
                     (if (indicatorType == STYLE_BLOCK) -1 else 0).toFloat()
                 ).toFloat()
             )
             // Indicator 四周 Margin。
             indicatorMarginLeft = getDimension(
-                R.styleable.DoraTabBar_dview_indicatorMarginLeft,
+                R.styleable.DoraTabBar_dview_tb_indicatorMarginLeft,
                 dp2px(0f).toFloat()
             )
             indicatorMarginTop = getDimension(
-                R.styleable.DoraTabBar_dview_indicatorMarginTop,
+                R.styleable.DoraTabBar_dview_tb_indicatorMarginTop,
                 dp2px(
                     (if (indicatorType == STYLE_BLOCK) 7 else 0).toFloat()
                 ).toFloat()
             )
             indicatorMarginRight = getDimension(
-                R.styleable.DoraTabBar_dview_indicatorMarginRight,
+                R.styleable.DoraTabBar_dview_tb_indicatorMarginRight,
                 dp2px(0f).toFloat()
             )
             indicatorMarginBottom = getDimension(
-                R.styleable.DoraTabBar_dview_indicatorMarginBottom,
+                R.styleable.DoraTabBar_dview_tb_indicatorMarginBottom,
                 dp2px(
                     (if (indicatorType == STYLE_BLOCK) 7 else 0).toFloat()
                 ).toFloat()
@@ -474,102 +507,108 @@ class DoraTabBar @JvmOverloads constructor(
             // Indicator 在顶部还是底部。
             indicatorGravity =
                 getInt(
-                    R.styleable.DoraTabBar_dview_indicatorGravity,
+                    R.styleable.DoraTabBar_dview_tb_indicatorGravity,
                     Gravity.BOTTOM
                 )
+            // Indicator 动画时长。
+            indicatorAnimationDuration =
+                getInt(
+                    R.styleable.DoraTabBar_dview_tb_indicatorAnimationDuration,
+                    250
+                ).toLong()
             // 整体 Underline。
             underlineColor =
                 getColor(
-                    R.styleable.DoraTabBar_dview_underlineColor,
+                    R.styleable.DoraTabBar_dview_tb_underlineColor,
                     "#ffffff".toColorInt()
                 )
             underlineHeight =
                 getDimension(
-                    R.styleable.DoraTabBar_dview_underlineHeight,
+                    R.styleable.DoraTabBar_dview_tb_underlineHeight,
                     dp2px(0f).toFloat()
                 )
             underlineGravity =
                 getInt(
-                    R.styleable.DoraTabBar_dview_underlineGravity,
+                    R.styleable.DoraTabBar_dview_tb_underlineGravity,
                     Gravity.BOTTOM
                 )
             // Tab Divider。
             dividerColor =
                 getColor(
-                    R.styleable.DoraTabBar_dview_dividerColor,
+                    R.styleable.DoraTabBar_dview_tb_dividerColor,
                     "#ffffff".toColorInt()
                 )
             dividerWidth =
                 getDimension(
-                    R.styleable.DoraTabBar_dview_dividerWidth,
+                    R.styleable.DoraTabBar_dview_tb_dividerWidth,
                     dp2px(0f).toFloat()
                 )
             dividerPadding =
                 getDimension(
-                    R.styleable.DoraTabBar_dview_dividerPadding,
+                    R.styleable.DoraTabBar_dview_tb_dividerPadding,
                     dp2px(12f).toFloat()
                 )
             // Tab 文字。
             tabTextSize = getDimension(
-                R.styleable.DoraTabBar_dview_tabTextSize,
+                R.styleable.DoraTabBar_dview_tb_tabTextSize,
                 sp2px(14f).toFloat()
             )
             tabTextSelectedColor =
                 getColor(
-                    R.styleable.DoraTabBar_dview_tabSelectedTextColor,
+                    R.styleable.DoraTabBar_dview_tb_tabSelectedTextColor,
                     "#FFFFFF".toColorInt()
                 )
             tabTextUnselectedColor =
                 getColor(
-                    R.styleable.DoraTabBar_dview_tabUnselectedTextColor,
+                    R.styleable.DoraTabBar_dview_tb_tabUnselectedTextColor,
                     "#AAFFFFFF".toColorInt()
                 )
             tabTextBold =
                 getInt(
-                    R.styleable.DoraTabBar_dview_tabTextBold,
+                    R.styleable.DoraTabBar_dview_tb_tabTextBold,
                     TEXT_BOLD_NONE
                 )
             tabTextAllCaps =
                 getBoolean(
-                    R.styleable.DoraTabBar_dview_tabTextAllCaps,
+                    R.styleable.DoraTabBar_dview_tb_tabTextAllCaps,
                     false
                 )
             // Icon。
             iconVisible =
                 getBoolean(
-                    R.styleable.DoraTabBar_dview_iconVisible,
+                    R.styleable.DoraTabBar_dview_tb_iconVisible,
                     true
                 )
             iconGravity =
                 getInt(
-                    R.styleable.DoraTabBar_dview_iconGravity,
+                    R.styleable.DoraTabBar_dview_tb_iconGravity,
                     Gravity.TOP
                 )
             iconWidth =
                 getDimension(
-                    R.styleable.DoraTabBar_dview_iconWidth,
+                    R.styleable.DoraTabBar_dview_tb_iconWidth,
                     dp2px(0f).toFloat()
                 )
             iconHeight =
                 getDimension(
-                    R.styleable.DoraTabBar_dview_iconHeight,
+                    R.styleable.DoraTabBar_dview_tb_iconHeight,
                     dp2px(0f).toFloat()
                 )
             iconMargin =
                 getDimension(
-                    R.styleable.DoraTabBar_dview_iconMargin,
+                    R.styleable.DoraTabBar_dview_tb_iconMargin,
                     dp2px(2.5f).toFloat()
                 )
             // Tab 是否平均分割。
             tabIsDivided =
                 getBoolean(
-                    R.styleable.DoraTabBar_dview_tabIsDivided,
+                    R.styleable.DoraTabBar_dview_tb_tabIsDivided,
                     false
                 )
             // Tab 固定宽度。
             tabWidth =
                 getDimension(
-                    R.styleable.DoraTabBar_dview_tabWidth,
+                    R.styleable.DoraTabBar_dview_tb_tabWidth,
                     dp2px(-1f).toFloat()
                 )
             // Tab Padding。
@@ -578,7 +617,7 @@ class DoraTabBar @JvmOverloads constructor(
             // 默认不再额外增加左右 Padding。
             tabPadding =
                 getDimension(
-                    R.styleable.DoraTabBar_dview_tabPadding,
+                    R.styleable.DoraTabBar_dview_tb_tabPadding,
                     (
                             if (tabIsDivided || tabWidth > 0) {
                                 dp2px(0f)
@@ -832,18 +871,19 @@ class DoraTabBar @JvmOverloads constructor(
          * Tab 点击事件。
          */
         tabView.setOnClickListener {
-            // 点击的是其它 Tab。
             if (currentTab != position) {
-                // 更新当前选中位置。
                 currentTab = position
-                // 更新所有 Tab 的选中状态。
                 updateTabSelection(position)
-                // 尝试把当前 Tab 滚动到中间。
-                scrollToCurrentTab()
-                // 回调选中事件。
+                if (indicatorAnimationDuration > 0) {
+                    animateIndicatorTo(position)
+                    smoothScrollToCurrentTab()
+                } else {
+                    updateIndicatorImmediately(position)
+                    scrollToCurrentTab()
+                }
                 onTabSelectListener?.onTabSelected(position)
+
             } else {
-                // 点击当前已经选中的 Tab。
                 onTabSelectListener?.onTabReselected(position)
             }
         }
@@ -970,6 +1010,112 @@ class DoraTabBar @JvmOverloads constructor(
     }
 
     /**
+     * 立即将 Indicator 设置到指定 Tab。
+     *
+     * 不执行动画。
+     */
+    private fun updateIndicatorImmediately(
+        position: Int
+    ) {
+        val tab =
+            tabContainer.getChildAt(position)
+                ?: return
+        var left = tab.left.toFloat()
+        var right = tab.right.toFloat()
+        if (indicatorWidth >= 0) {
+            val width = indicatorWidth
+            left =
+                tab.left +
+                        (tab.width - width) / 2f
+            right =
+                left + width
+        }
+        indicatorLeft = left
+        indicatorRight = right
+        invalidate()
+    }
+
+    private fun animateIndicatorTo(
+        position: Int
+    ) {
+        val tab = tabContainer.getChildAt(position)
+                ?: return
+        val startLeft = indicatorLeft
+        val startRight = indicatorRight
+        var targetLeft = tab.left.toFloat()
+        var targetRight = tab.right.toFloat()
+        if (indicatorWidth >= 0) {
+            val width = indicatorWidth
+            targetLeft =
+                tab.left +
+                        (tab.width - width) / 2f
+            targetRight =
+                targetLeft + width
+        }
+        indicatorAnimator?.cancel()
+        indicatorAnimator =
+            ValueAnimator.ofFloat(0f, 1f).apply {
+                duration = indicatorAnimationDuration
+
+                interpolator =
+                    DecelerateInterpolator()
+
+                addUpdateListener {
+                    val fraction =
+                        it.animatedValue as Float
+
+                    indicatorLeft =
+                        startLeft +
+                                (targetLeft - startLeft) *
+                                fraction
+
+                    indicatorRight =
+                        startRight +
+                                (targetRight - startRight) *
+                                fraction
+
+                    invalidate()
+                }
+
+                start()
+            }
+    }
+
+    /**
+     * 平滑滚动到当前 Tab。
+     *
+     * 与 scrollToCurrentTab() 的区别：
+     *
+     * scrollToCurrentTab()
+     *      立即滚动。
+     *
+     * smoothScrollToCurrentTab()
+     *      平滑滚动。
+     */
+    private fun smoothScrollToCurrentTab() {
+        if (tabCount <= 0) {
+            return
+        }
+        val tab =
+            tabContainer.getChildAt(currentTab)
+                ?: return
+        var newScrollX = tab.left
+        // 尽量让当前 Tab 居中。
+        newScrollX -=
+            width / 2 -
+                    tab.width / 2
+        // 防止滚动到负数。
+        newScrollX = newScrollX.coerceAtLeast(0)
+        if (newScrollX != lastScrollX) {
+            lastScrollX = newScrollX
+            smoothScrollTo(
+                newScrollX,
+                0
+            )
+        }
+    }
+
+    /**
      * 将当前 Tab 滚动到 HorizontalScrollView 中间。
      *
      * 例如：
@@ -1040,34 +1186,10 @@ class DoraTabBar @JvmOverloads constructor(
 
     /**
      * 计算 Indicator 当前应该绘制的区域。
-     *
-     * Indicator 默认覆盖整个当前 Tab 的宽度。
-     *
-     * 如果 indicatorWidth >= 0：
-     *      则以固定宽度居中显示。
      */
     private fun calcIndicatorRect() {
-        // 获取当前 Tab。
-        val currentTabView =
-            tabContainer.getChildAt(currentTab) ?: return
-        // 当前 Tab 左边界。
-        val left = currentTabView.left
-        // 当前 Tab 右边界。
-        val right = currentTabView.right
-        // 默认 Indicator 与 Tab 同宽。
-        indicatorRect.left = left
-        indicatorRect.right = right
-        // 如果设置了固定 Indicator 宽度，
-        // 则让 Indicator 在当前 Tab 中水平居中。
-        if (indicatorWidth >= 0) {
-            val width = indicatorWidth.toInt()
-            indicatorRect.left =
-                currentTabView.left +
-                        (currentTabView.width - width) / 2
-            indicatorRect.right =
-                indicatorRect.left + width
-        }
-        // 保存 Tab 对应区域。
+        indicatorRect.left = indicatorLeft.toInt()
+        indicatorRect.right = indicatorRight.toInt()
         tabRect.set(
             indicatorRect.left,
             0,
@@ -1147,7 +1269,7 @@ class DoraTabBar @JvmOverloads constructor(
                 )
             }
         }
-
+        ensureIndicatorPosition()
         // 计算当前 Indicator 区域。
         calcIndicatorRect()
 
@@ -1326,6 +1448,24 @@ class DoraTabBar @JvmOverloads constructor(
     ) {
         this.indicatorWidthWrapTitle = indicatorWidthEqualTitle
         invalidate()
+    }
+
+    /**
+     * 设置 Indicator 动画时长。
+     *
+     * @param duration 动画时长，单位：ms。
+     *
+     * 0：
+     *      点击 Tab 时立即切换。
+     *
+     * > 0：
+     *      点击 Tab 时执行平滑动画。
+     */
+    fun setIndicatorAnimationDuration(
+        duration: Long
+    ) {
+        indicatorAnimationDuration =
+            duration.coerceAtLeast(0L)
     }
 
     /**
@@ -1817,22 +1957,122 @@ class DoraTabBar @JvmOverloads constructor(
      * 则直接忽略此次调用。
      */
     fun setCurrentTab(
-        position: Int
+        position: Int,
+        animate: Boolean = false
     ) {
-        // 检查下标是否合法。
-        if (
-            position !in 0..<tabCount
-        ) {
+        if (position !in 0..<tabCount) {
             return
         }
-        // 更新当前 Tab。
         currentTab = position
-        // 更新文字选中状态。
         updateTabSelection(position)
-        // 滚动到当前 Tab。
-        scrollToCurrentTab()
-        // 重新绘制 Indicator。
+        if (animate) {
+            animateIndicatorTo(position)
+            smoothScrollToCurrentTab()
+        } else {
+            indicatorAnimator?.cancel()
+            val tab = tabContainer.getChildAt(position) ?: return
+            indicatorLeft = tab.left.toFloat()
+            indicatorRight = tab.right.toFloat()
+            if (indicatorWidth >= 0) {
+                val width = indicatorWidth
+                indicatorLeft = tab.left + (tab.width - width) / 2f
+                indicatorRight =
+                    indicatorLeft + width
+            }
+            scrollToCurrentTab()
+            invalidate()
+        }
+    }
+
+    /**
+     * 获取指定 Tab 对应的 Indicator 左右位置。
+     */
+    private fun getIndicatorRectForTab(
+        tabView: View
+    ): Pair<Float, Float> {
+        var left = tabView.left.toFloat()
+        var right = tabView.right.toFloat()
+        if (indicatorWidth >= 0) {
+            val width = indicatorWidth
+            left = tabView.left + (tabView.width - width) / 2f
+            right = left + width
+        }
+        return left to right
+    }
+
+    /**
+     * 根据 ViewPager2 的滑动状态更新 Indicator。
+     *
+     * @param position 当前页面位置。
+     * @param positionOffset 当前页面滑动偏移量，范围 0f ~ 1f。
+     *
+     * 例如：
+     *
+     * position = 0
+     * positionOffset = 0f
+     *      Indicator 在 Tab 0。
+     *
+     * position = 0
+     * positionOffset = 0.5f
+     *      Indicator 位于 Tab 0 和 Tab 1 中间。
+     *
+     * position = 0
+     * positionOffset = 1f
+     *      Indicator 到达 Tab 1。
+     */
+    fun setIndicatorPosition(
+        position: Int,
+        positionOffset: Float
+    ) {
+        if (tabCount <= 0) {
+            return
+        }
+        if (position !in 0 until tabCount) {
+            return
+        }
+        val currentView =
+            tabContainer.getChildAt(position)
+                ?: return
+        val nextPosition =
+            if (positionOffset > 0f) {
+                (position + 1).coerceAtMost(tabCount - 1)
+            } else {
+                position
+            }
+        val nextView =
+            tabContainer.getChildAt(nextPosition)
+                ?: return
+        val offset =
+            positionOffset.coerceIn(0f, 1f)
+        val currentRect =
+            getIndicatorRectForTab(currentView)
+        val nextRect =
+            getIndicatorRectForTab(nextView)
+        indicatorLeft =
+            currentRect.first +
+                    (nextRect.first - currentRect.first) * offset
+        indicatorRight =
+            currentRect.second +
+                    (nextRect.second - currentRect.second) * offset
+        // ViewPager2 正在滑动时，同步更新当前选中 Tab。
+        if (offset >= 0.5f) {
+            updateTabSelection(nextPosition)
+        } else {
+            updateTabSelection(position)
+        }
+
         invalidate()
+    }
+
+    private fun ensureIndicatorPosition() {
+        if (indicatorInitialized) {
+            return
+        }
+        val tab = tabContainer.getChildAt(currentTab) ?: return
+        val rect = getIndicatorRectForTab(tab)
+        indicatorLeft = rect.first
+        indicatorRight = rect.second
+        indicatorInitialized = true
     }
 
     /**
