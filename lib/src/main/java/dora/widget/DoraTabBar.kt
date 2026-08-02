@@ -21,6 +21,7 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.annotation.ColorInt
 import androidx.annotation.DrawableRes
+import androidx.annotation.IntDef
 import androidx.core.content.ContextCompat
 import androidx.core.content.withStyledAttributes
 import androidx.core.graphics.toColorInt
@@ -196,7 +197,8 @@ class DoraTabBar @JvmOverloads constructor(
      *
      * 默认使用普通 Indicator。
      */
-    private var indicatorType: Int = STYLE_NORMAL
+    @IndicatorType
+    private var indicatorType: Int = INDICATOR_NORMAL
 
     /**
      * Tab 左右 Padding。
@@ -325,7 +327,8 @@ class DoraTabBar @JvmOverloads constructor(
      *      TEXT_BOLD_WHEN_SELECT
      *      TEXT_BOLD_BOTH
      */
-    private var tabTextBold = 0
+    @TextBoldMode
+    private var tabTextBold: Int = TEXT_BOLD_NONE
 
     /**
      * 是否将 Tab 标题转换成大写。
@@ -425,7 +428,7 @@ class DoraTabBar @JvmOverloads constructor(
             indicatorType =
                 getInt(
                     R.styleable.DoraTabBar_dview_tb_indicatorType,
-                    STYLE_NORMAL
+                    INDICATOR_NORMAL
                 )
             // Indicator 颜色。
             //
@@ -433,7 +436,7 @@ class DoraTabBar @JvmOverloads constructor(
             // 其它样式默认使用白色。
             indicatorColor = getColor(
                 R.styleable.DoraTabBar_dview_tb_indicatorColor,
-                if (indicatorType == STYLE_BLOCK) {
+                if (indicatorType == INDICATOR_BLOCK) {
                     "#4B6A87".toColorInt()
                 } else {
                     "#FFFFFF".toColorInt()
@@ -446,7 +449,7 @@ class DoraTabBar @JvmOverloads constructor(
             indicatorWidth = getDimension(
                 R.styleable.DoraTabBar_dview_tb_indicatorWidth,
                 dp2px(
-                    (if (indicatorType == STYLE_TRIANGLE) 10 else -1).toFloat()
+                    (if (indicatorType == INDICATOR_TRIANGLE) 10 else -1).toFloat()
                 ).toFloat()
             )
             // Indicator 高度。
@@ -458,9 +461,9 @@ class DoraTabBar @JvmOverloads constructor(
                 R.styleable.DoraTabBar_dview_tb_indicatorHeight,
                 dp2px(
                     (
-                            if (indicatorType == STYLE_TRIANGLE) {
+                            if (indicatorType == INDICATOR_TRIANGLE) {
                                 4
-                            } else if (indicatorType == STYLE_BLOCK) {
+                            } else if (indicatorType == INDICATOR_BLOCK) {
                                 -1
                             } else {
                                 2
@@ -475,7 +478,7 @@ class DoraTabBar @JvmOverloads constructor(
             indicatorCornerRadius = getDimension(
                 R.styleable.DoraTabBar_dview_tb_indicatorCornerRadius,
                 dp2px(
-                    (if (indicatorType == STYLE_BLOCK) -1 else 0).toFloat()
+                    (if (indicatorType == INDICATOR_BLOCK) -1 else 0).toFloat()
                 ).toFloat()
             )
             // Indicator 四周 Margin。
@@ -486,7 +489,7 @@ class DoraTabBar @JvmOverloads constructor(
             indicatorMarginTop = getDimension(
                 R.styleable.DoraTabBar_dview_tb_indicatorMarginTop,
                 dp2px(
-                    (if (indicatorType == STYLE_BLOCK) 7 else 0).toFloat()
+                    (if (indicatorType == INDICATOR_BLOCK) 7 else 0).toFloat()
                 ).toFloat()
             )
             indicatorMarginRight = getDimension(
@@ -496,7 +499,7 @@ class DoraTabBar @JvmOverloads constructor(
             indicatorMarginBottom = getDimension(
                 R.styleable.DoraTabBar_dview_tb_indicatorMarginBottom,
                 dp2px(
-                    (if (indicatorType == STYLE_BLOCK) 7 else 0).toFloat()
+                    (if (indicatorType == INDICATOR_BLOCK) 7 else 0).toFloat()
                 ).toFloat()
             )
             // Indicator 在顶部还是底部。
@@ -515,7 +518,7 @@ class DoraTabBar @JvmOverloads constructor(
             underlineColor =
                 getColor(
                     R.styleable.DoraTabBar_dview_tb_underlineColor,
-                    "#ffffff".toColorInt()
+                    "#FFFFFF".toColorInt()
                 )
             underlineHeight =
                 getDimension(
@@ -531,7 +534,7 @@ class DoraTabBar @JvmOverloads constructor(
             dividerColor =
                 getColor(
                     R.styleable.DoraTabBar_dview_tb_dividerColor,
-                    "#ffffff".toColorInt()
+                    "#FFFFFF".toColorInt()
                 )
             dividerWidth =
                 getDimension(
@@ -662,22 +665,51 @@ class DoraTabBar @JvmOverloads constructor(
      * 设置全部 Tab 数据。
      *
      * 设置完成后会立即重新创建所有 Tab View。
+     *
+     * Kotlin：
+     * setTabs(tab1, tab2, tab3)
+     *
+     * Java：
+     * setTabs(new DoraTab[]{tab1, tab2, tab3})
      */
     fun setTabs(
         vararg tabs: DoraTab
-    ) {
+    ): DoraTabBar {
         this.tabs.clear()
         this.tabs.addAll(tabs)
-        // 重新创建 Tab。
         notifyDataSetChanged()
+        return this
+    }
+
+    /**
+     * 使用 ArrayList 设置全部 Tab 数据。
+     *
+     * 主要方便 Java 调用。
+     *
+     * Java：
+     * setTabs(new ArrayList<>(...))
+     */
+    fun setTabs(
+        tabs: ArrayList<DoraTab>
+    ): DoraTabBar {
+        this.tabs.clear()
+        this.tabs.addAll(tabs)
+        notifyDataSetChanged()
+        return this
     }
 
     /**
      * 设置纯 Text Tab。
+     *
+     * Kotlin：
+     * setTextTabs("首页", "消息", "我的")
+     *
+     * Java：
+     * setTextTabs(new String[]{"首页", "消息", "我的"})
      */
     fun setTextTabs(
         vararg titles: String
-    ) {
+    ): DoraTabBar {
         tabs.clear()
         titles.forEach { title ->
             tabs.add(
@@ -687,16 +719,50 @@ class DoraTabBar @JvmOverloads constructor(
             )
         }
         notifyDataSetChanged()
+        return this
+    }
+
+    /**
+     * 使用 ArrayList 设置纯 Text Tab。
+     *
+     * 主要方便 Java 调用。
+     */
+    fun setTextTabs(
+        titles: ArrayList<String>
+    ): DoraTabBar {
+        tabs.clear()
+        titles.forEach { title ->
+            tabs.add(
+                DoraTab(
+                    tabTitle = title
+                )
+            )
+        }
+        notifyDataSetChanged()
+        return this
     }
 
     /**
      * 设置纯 Icon Tab。
      *
-     * 选中和未选中使用同一个 Icon。
+     * Pair.first  = 选中状态 Icon。
+     * Pair.second = 未选中状态 Icon。
+     *
+     * Kotlin：
+     * setIconTabs(
+     *     R.drawable.ic_home_selected to R.drawable.ic_home,
+     *     R.drawable.ic_mine_selected to R.drawable.ic_mine
+     * )
+     *
+     * Java：
+     * setIconTabs(new Pair[]{
+     *     new Pair<>(R.drawable.ic_home_selected, R.drawable.ic_home),
+     *     new Pair<>(R.drawable.ic_mine_selected, R.drawable.ic_mine)
+     * })
      */
     fun setIconTabs(
         vararg icons: Pair<Int, Int>
-    ) {
+    ): DoraTabBar {
         tabs.clear()
         icons.forEach { (selectedIcon, unselectedIcon) ->
             tabs.add(
@@ -708,12 +774,33 @@ class DoraTabBar @JvmOverloads constructor(
             )
         }
         notifyDataSetChanged()
+        return this
+    }
+
+    /**
+     * 使用 ArrayList 设置纯 Icon Tab。
+     *
+     * 主要方便 Java 调用。
+     */
+    fun setIconTabs(
+        icons: ArrayList<Pair<Int, Int>>
+    ): DoraTabBar {
+        tabs.clear()
+        icons.forEach { (selectedIcon, unselectedIcon) ->
+            tabs.add(
+                DoraTab(
+                    tabTitle = "",
+                    tabSelectedIcon = selectedIcon,
+                    tabUnselectedIcon = unselectedIcon
+                )
+            )
+        }
+        notifyDataSetChanged()
+        return this
     }
 
     /**
      * 添加一个 Tab。
-     *
-     * @param tab Tab 数据。
      *
      * 添加完成后会自动刷新 TabBar。
      */
@@ -726,10 +813,39 @@ class DoraTabBar @JvmOverloads constructor(
     }
 
     /**
+     * 添加多个 Tab。
+     *
+     * Kotlin：
+     * addTab(tab1, tab2, tab3)
+     *
+     * Java：
+     * addTab(new DoraTab[]{tab1, tab2, tab3})
+     */
+    fun addTab(
+        vararg tabs: DoraTab
+    ): DoraTabBar {
+        this.tabs.addAll(tabs)
+        notifyDataSetChanged()
+        return this
+    }
+
+    /**
+     * 使用 ArrayList 添加多个 Tab。
+     *
+     * 主要方便 Java 调用。
+     */
+    fun addTab(
+        tabs: ArrayList<DoraTab>
+    ): DoraTabBar {
+        this.tabs.addAll(tabs)
+        notifyDataSetChanged()
+        return this
+    }
+
+    /**
      * 添加一个 Tab 到指定位置。
      *
-     * @param position 插入位置。
-     * @param tab Tab 数据。
+     * position 超出范围时自动限制到合法位置。
      */
     fun addTab(
         position: Int,
@@ -742,11 +858,45 @@ class DoraTabBar @JvmOverloads constructor(
     }
 
     /**
+     * 添加多个 Tab 到指定位置。
+     *
+     * Tab 会按照传入顺序插入。
+     */
+    fun addTab(
+        position: Int,
+        vararg tabs: DoraTab
+    ): DoraTabBar {
+        val index = position.coerceIn(0, this.tabs.size)
+        this.tabs.addAll(
+            index,
+            tabs.toList()
+        )
+        notifyDataSetChanged()
+        return this
+    }
+
+    /**
+     * 使用 ArrayList 添加多个 Tab 到指定位置。
+     *
+     * 主要方便 Java 调用。
+     */
+    fun addTab(
+        position: Int,
+        tabs: ArrayList<DoraTab>
+    ): DoraTabBar {
+        val index = position.coerceIn(0, this.tabs.size)
+        this.tabs.addAll(
+            index,
+            tabs
+        )
+        notifyDataSetChanged()
+        return this
+    }
+
+    /**
      * 添加一个纯文字 Tab。
      *
      * 不设置 Icon。
-     *
-     * @param title Tab 标题。
      */
     fun addTextTab(
         title: String
@@ -759,10 +909,49 @@ class DoraTabBar @JvmOverloads constructor(
     }
 
     /**
-     * 添加一个纯文字 Tab 到指定位置。
+     * 添加多个纯文字 Tab。
      *
-     * @param position 插入位置。
-     * @param title Tab 标题。
+     * Kotlin：
+     * addTextTab("首页", "消息", "我的")
+     *
+     * Java：
+     * addTextTab(new String[]{"首页", "消息", "我的"})
+     */
+    fun addTextTab(
+        vararg titles: String
+    ): DoraTabBar {
+        titles.forEach { title ->
+            tabs.add(
+                DoraTab(
+                    tabTitle = title
+                )
+            )
+        }
+        notifyDataSetChanged()
+        return this
+    }
+
+    /**
+     * 使用 ArrayList 添加多个纯文字 Tab。
+     *
+     * 主要方便 Java 调用。
+     */
+    fun addTextTab(
+        titles: ArrayList<String>
+    ): DoraTabBar {
+        titles.forEach { title ->
+            tabs.add(
+                DoraTab(
+                    tabTitle = title
+                )
+            )
+        }
+        notifyDataSetChanged()
+        return this
+    }
+
+    /**
+     * 添加一个纯文字 Tab 到指定位置。
      */
     fun addTextTab(
         position: Int,
@@ -773,6 +962,50 @@ class DoraTabBar @JvmOverloads constructor(
             DoraTab(
                 tabTitle = title
             )
+        )
+    }
+
+    /**
+     * 添加多个纯文字 Tab 到指定位置。
+     */
+    fun addTextTab(
+        position: Int,
+        vararg titles: String
+    ): DoraTabBar {
+        val tabList = ArrayList<DoraTab>(titles.size)
+        titles.forEach { title ->
+            tabList.add(
+                DoraTab(
+                    tabTitle = title
+                )
+            )
+        }
+        return addTab(
+            position,
+            tabList
+        )
+    }
+
+    /**
+     * 使用 ArrayList 添加多个纯文字 Tab 到指定位置。
+     *
+     * 主要方便 Java 调用。
+     */
+    fun addTextTab(
+        position: Int,
+        titles: ArrayList<String>
+    ): DoraTabBar {
+        val tabList = ArrayList<DoraTab>(titles.size)
+        titles.forEach { title ->
+            tabList.add(
+                DoraTab(
+                    tabTitle = title
+                )
+            )
+        }
+        return addTab(
+            position,
+            tabList
         )
     }
 
@@ -796,11 +1029,58 @@ class DoraTabBar @JvmOverloads constructor(
     }
 
     /**
-     * 添加一个纯 Icon Tab 到指定位置。
+     * 添加多个纯 Icon Tab。
      *
-     * @param position 插入位置。
-     * @param selectedIcon 选中状态 Icon。
-     * @param unselectedIcon 未选中状态 Icon。
+     * Pair.first  = 选中 Icon。
+     * Pair.second = 未选中 Icon。
+     *
+     * Kotlin：
+     *
+     * addIconTab(
+     *     R.drawable.ic_home_selected to R.drawable.ic_home,
+     *     R.drawable.ic_message_selected to R.drawable.ic_message,
+     *     R.drawable.ic_mine_selected to R.drawable.ic_mine
+     * )
+     */
+    fun addIconTab(
+        vararg icons: Pair<Int, Int>
+    ): DoraTabBar {
+        icons.forEach { (selectedIcon, unselectedIcon) ->
+            tabs.add(
+                DoraTab(
+                    tabTitle = "",
+                    tabSelectedIcon = selectedIcon,
+                    tabUnselectedIcon = unselectedIcon
+                )
+            )
+        }
+        notifyDataSetChanged()
+        return this
+    }
+
+    /**
+     * 使用 ArrayList 添加多个纯 Icon Tab。
+     *
+     * 主要方便 Java 调用。
+     */
+    fun addIconTab(
+        icons: ArrayList<Pair<Int, Int>>
+    ): DoraTabBar {
+        icons.forEach { (selectedIcon, unselectedIcon) ->
+            tabs.add(
+                DoraTab(
+                    tabTitle = "",
+                    tabSelectedIcon = selectedIcon,
+                    tabUnselectedIcon = unselectedIcon
+                )
+            )
+        }
+        notifyDataSetChanged()
+        return this
+    }
+
+    /**
+     * 添加一个纯 Icon Tab 到指定位置。
      */
     fun addIconTab(
         position: Int,
@@ -814,6 +1094,62 @@ class DoraTabBar @JvmOverloads constructor(
                 tabSelectedIcon = selectedIcon,
                 tabUnselectedIcon = unselectedIcon
             )
+        )
+    }
+
+    /**
+     * 添加多个纯 Icon Tab 到指定位置。
+     *
+     * Kotlin：
+     *
+     * addIconTab(
+     *     1,
+     *     R.drawable.ic_home_selected to R.drawable.ic_home,
+     *     R.drawable.ic_message_selected to R.drawable.ic_message
+     * )
+     */
+    fun addIconTab(
+        position: Int,
+        vararg icons: Pair<Int, Int>
+    ): DoraTabBar {
+        val tabList = ArrayList<DoraTab>(icons.size)
+        icons.forEach { (selectedIcon, unselectedIcon) ->
+            tabList.add(
+                DoraTab(
+                    tabTitle = "",
+                    tabSelectedIcon = selectedIcon,
+                    tabUnselectedIcon = unselectedIcon
+                )
+            )
+        }
+        return addTab(
+            position,
+            tabList
+        )
+    }
+
+    /**
+     * 使用 ArrayList 添加多个纯 Icon Tab 到指定位置。
+     *
+     * 主要方便 Java 调用。
+     */
+    fun addIconTab(
+        position: Int,
+        icons: ArrayList<Pair<Int, Int>>
+    ): DoraTabBar {
+        val tabList = ArrayList<DoraTab>(icons.size)
+        icons.forEach { (selectedIcon, unselectedIcon) ->
+            tabList.add(
+                DoraTab(
+                    tabTitle = "",
+                    tabSelectedIcon = selectedIcon,
+                    tabUnselectedIcon = unselectedIcon
+                )
+            )
+        }
+        return addTab(
+            position,
+            tabList
         )
     }
 
@@ -992,7 +1328,6 @@ class DoraTabBar @JvmOverloads constructor(
                 }
             }
         }
-
         /**
          * Tab 点击事件。
          */
@@ -1008,7 +1343,6 @@ class DoraTabBar @JvmOverloads constructor(
                     scrollToCurrentTab()
                 }
                 onTabSelectListener?.onTabSelected(position)
-
             } else {
                 onTabSelectListener?.onTabReselected(position)
             }
@@ -1143,18 +1477,13 @@ class DoraTabBar @JvmOverloads constructor(
     private fun updateIndicatorImmediately(
         position: Int
     ) {
-        val tab =
-            tabContainer.getChildAt(position)
-                ?: return
+        val tab = tabContainer.getChildAt(position) ?: return
         var left = tab.left.toFloat()
         var right = tab.right.toFloat()
         if (indicatorWidth >= 0) {
             val width = indicatorWidth
-            left =
-                tab.left +
-                        (tab.width - width) / 2f
-            right =
-                left + width
+            left = tab.left + (tab.width - width) / 2f
+            right = left + width
         }
         indicatorLeft = left
         indicatorRight = right
@@ -1182,27 +1511,17 @@ class DoraTabBar @JvmOverloads constructor(
         indicatorAnimator =
             ValueAnimator.ofFloat(0f, 1f).apply {
                 duration = indicatorAnimationDuration
-
-                interpolator =
-                    DecelerateInterpolator()
-
+                interpolator = DecelerateInterpolator()
                 addUpdateListener {
                     val fraction =
                         it.animatedValue as Float
-
-                    indicatorLeft =
-                        startLeft +
-                                (targetLeft - startLeft) *
-                                fraction
-
+                    indicatorLeft = startLeft + (targetLeft - startLeft) * fraction
                     indicatorRight =
                         startRight +
                                 (targetRight - startRight) *
                                 fraction
-
                     invalidate()
                 }
-
                 start()
             }
     }
@@ -1366,7 +1685,6 @@ class DoraTabBar @JvmOverloads constructor(
                 )
             }
         }
-
         /**
          * 绘制整体 Underline。
          *
@@ -1398,11 +1716,10 @@ class DoraTabBar @JvmOverloads constructor(
         ensureIndicatorPosition()
         // 计算当前 Indicator 区域。
         calcIndicatorRect()
-
         /**
          * Triangle Indicator。
          */
-        if (indicatorType == STYLE_TRIANGLE) {
+        if (indicatorType == INDICATOR_TRIANGLE) {
             if (indicatorHeight > 0) {
                 trianglePaint.color = indicatorColor
                 // 清空旧 Path。
@@ -1434,13 +1751,12 @@ class DoraTabBar @JvmOverloads constructor(
                     trianglePaint
                 )
             }
-
             /**
              * Block Indicator。
              *
              * 表现为一个带圆角的矩形背景。
              */
-        } else if (indicatorType == STYLE_BLOCK) {
+        } else if (indicatorType == INDICATOR_BLOCK) {
             // 高度 < 0 表示自动计算高度。
             if (indicatorHeight < 0) {
                 indicatorHeight =
@@ -1580,8 +1896,8 @@ class DoraTabBar @JvmOverloads constructor(
     fun setIndicatorAnimationDuration(
         duration: Long
     ) {
-        indicatorAnimationDuration =
-            duration.coerceAtLeast(0L)
+        this.indicatorAnimationDuration = duration.coerceAtLeast(0L)
+        invalidate()
     }
 
     /**
@@ -1995,7 +2311,6 @@ class DoraTabBar @JvmOverloads constructor(
                 // Icon 与文字之间的间距。
                 margin = iconMargin
             }
-
             /**
              * Icon 在顶部或底部时：
              *
@@ -2049,8 +2364,7 @@ class DoraTabBar @JvmOverloads constructor(
         if (position >= this.tabCount) {
             position = this.tabCount - 1
         }
-        val tabView =
-            tabContainer.getChildAt(position)
+        val tabView = tabContainer.getChildAt(position)
         return tabView.findViewById<View?>(
             R.id.bv_num
         ) as BadgeView?
@@ -2062,8 +2376,7 @@ class DoraTabBar @JvmOverloads constructor(
     fun setOnTabSelectListener(
         listener: OnTabSelectListener
     ) {
-        this.onTabSelectListener =
-            listener
+        this.onTabSelectListener = listener
     }
 
     /**
@@ -2242,7 +2555,6 @@ class DoraTabBar @JvmOverloads constructor(
                 scrollToCurrentTab()
             }
         }
-
         // 最后恢复父类状态。
         super.onRestoreInstanceState(
             state
@@ -2292,6 +2604,40 @@ class DoraTabBar @JvmOverloads constructor(
         )
     }
 
+    /**
+     * 文字加粗模式限制。
+     */
+    @IntDef(
+        TEXT_BOLD_NONE,
+        TEXT_BOLD_WHEN_SELECT,
+        TEXT_BOLD_BOTH
+    )
+    @Retention(AnnotationRetention.SOURCE)
+    @Target(
+        AnnotationTarget.FIELD,
+        AnnotationTarget.PROPERTY,
+        AnnotationTarget.VALUE_PARAMETER,
+        AnnotationTarget.FUNCTION
+    )
+    private annotation class TextBoldMode
+
+    /**
+     * Indicator 类型限制。
+     */
+    @IntDef(
+        INDICATOR_NORMAL,
+        INDICATOR_TRIANGLE,
+        INDICATOR_BLOCK
+    )
+    @Retention(AnnotationRetention.SOURCE)
+    @Target(
+        AnnotationTarget.FIELD,
+        AnnotationTarget.PROPERTY,
+        AnnotationTarget.VALUE_PARAMETER,
+        AnnotationTarget.FUNCTION
+    )
+    private annotation class IndicatorType
+
     companion object {
 
         /**
@@ -2299,17 +2645,17 @@ class DoraTabBar @JvmOverloads constructor(
          *
          * 通常表现为顶部 / 底部的一条横线。
          */
-        private const val STYLE_NORMAL = 0
+        private const val INDICATOR_NORMAL = 0
 
         /**
          * 三角形 Indicator。
          */
-        private const val STYLE_TRIANGLE = 1
+        private const val INDICATOR_TRIANGLE = 1
 
         /**
          * Block 背景 Indicator。
          */
-        private const val STYLE_BLOCK = 2
+        private const val INDICATOR_BLOCK = 2
 
         /**
          * 不加粗。

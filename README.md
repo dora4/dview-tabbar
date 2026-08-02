@@ -16,7 +16,7 @@ allprojects {
 }
 // 添加以下代码到app模块的build.gradle
 dependencies {
-    implementation 'com.github.dora4:dview-tabbar:1.8'
+    implementation 'com.github.dora4:dview-tabbar:1.9'
 }
 ```
 
@@ -38,19 +38,18 @@ dependencies {
 ```
 
 ```kotlin
-binding.tabBar.setTabs(arrayOf(
+binding.tabBar.setTabs(
                 DoraTabBar.DoraTab("频道1"),
                 DoraTabBar.DoraTab("频道2"),
-                DoraTabBar.DoraTab("频道3"),
-            ))
+                DoraTabBar.DoraTab("频道3")
+            )
 binding.tabBar.setOnTabSelectListener(
     object : DoraTabBar.OnTabSelectListener {
 
         override fun onTabSelected(
             position: Int
         ) {
-            // 修改指示器的选中位置，手动设置，为滑动指示器的性能预留空间
-            binding.tabBar.setCurrentTab(position)
+            binding.tabBar.setCurrentTab(position, true)
             when (position) {
                 0 -> {
                     showPage(pageOne)
