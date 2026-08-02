@@ -273,11 +273,6 @@ class DoraTabBar @JvmOverloads constructor(
     private var indicatorGravity = 0
 
     /**
-     * Indicator 是否根据标题宽度决定宽度。
-     */
-    private var indicatorWidthWrapTitle = false
-
-    /**
      * 整体 Underline 的颜色。
      */
     private var underlineColor = 0
@@ -669,7 +664,7 @@ class DoraTabBar @JvmOverloads constructor(
      * 设置完成后会立即重新创建所有 Tab View。
      */
     fun setTabs(
-        tabs: Array<DoraTab>
+        vararg tabs: DoraTab
     ) {
         this.tabs.clear()
         this.tabs.addAll(tabs)
@@ -678,17 +673,148 @@ class DoraTabBar @JvmOverloads constructor(
     }
 
     /**
-     * 设置全部 Tab 数据。
-     *
-     * 设置完成后会立即重新创建所有 Tab View。
+     * 设置纯 Text Tab。
      */
-    fun setTabs(
-        tabs: ArrayList<DoraTab>
+    fun setTextTabs(
+        vararg titles: String
     ) {
-        this.tabs.clear()
-        this.tabs.addAll(tabs)
-        // 重新创建 Tab。
+        tabs.clear()
+        titles.forEach { title ->
+            tabs.add(
+                DoraTab(
+                    tabTitle = title
+                )
+            )
+        }
         notifyDataSetChanged()
+    }
+
+    /**
+     * 设置纯 Icon Tab。
+     *
+     * 选中和未选中使用同一个 Icon。
+     */
+    fun setIconTabs(
+        vararg icons: Pair<Int, Int>
+    ) {
+        tabs.clear()
+        icons.forEach { (selectedIcon, unselectedIcon) ->
+            tabs.add(
+                DoraTab(
+                    tabTitle = "",
+                    tabSelectedIcon = selectedIcon,
+                    tabUnselectedIcon = unselectedIcon
+                )
+            )
+        }
+        notifyDataSetChanged()
+    }
+
+    /**
+     * 添加一个 Tab。
+     *
+     * @param tab Tab 数据。
+     *
+     * 添加完成后会自动刷新 TabBar。
+     */
+    fun addTab(
+        tab: DoraTab
+    ): DoraTabBar {
+        tabs.add(tab)
+        notifyDataSetChanged()
+        return this
+    }
+
+    /**
+     * 添加一个 Tab 到指定位置。
+     *
+     * @param position 插入位置。
+     * @param tab Tab 数据。
+     */
+    fun addTab(
+        position: Int,
+        tab: DoraTab
+    ): DoraTabBar {
+        val index = position.coerceIn(0, tabs.size)
+        tabs.add(index, tab)
+        notifyDataSetChanged()
+        return this
+    }
+
+    /**
+     * 添加一个纯文字 Tab。
+     *
+     * 不设置 Icon。
+     *
+     * @param title Tab 标题。
+     */
+    fun addTextTab(
+        title: String
+    ): DoraTabBar {
+        return addTab(
+            DoraTab(
+                tabTitle = title
+            )
+        )
+    }
+
+    /**
+     * 添加一个纯文字 Tab 到指定位置。
+     *
+     * @param position 插入位置。
+     * @param title Tab 标题。
+     */
+    fun addTextTab(
+        position: Int,
+        title: String
+    ): DoraTabBar {
+        return addTab(
+            position,
+            DoraTab(
+                tabTitle = title
+            )
+        )
+    }
+
+    /**
+     * 添加一个纯 Icon Tab。
+     *
+     * @param selectedIcon 选中状态 Icon。
+     * @param unselectedIcon 未选中状态 Icon。
+     */
+    fun addIconTab(
+        @DrawableRes selectedIcon: Int,
+        @DrawableRes unselectedIcon: Int
+    ): DoraTabBar {
+        return addTab(
+            DoraTab(
+                tabTitle = "",
+                tabSelectedIcon = selectedIcon,
+                tabUnselectedIcon = unselectedIcon
+            )
+        )
+    }
+
+    /**
+     * 添加一个纯 Icon Tab 到指定位置。
+     *
+     * @param position 插入位置。
+     * @param selectedIcon 选中状态 Icon。
+     * @param unselectedIcon 未选中状态 Icon。
+     */
+    fun addIconTab(
+        position: Int,
+        @DrawableRes selectedIcon: Int,
+        @DrawableRes unselectedIcon: Int
+    ): DoraTabBar {
+        return addTab(
+            position,
+            DoraTab(
+                tabTitle = "",
+                tabSelectedIcon = selectedIcon,
+                tabUnselectedIcon = unselectedIcon
+            )
+        )
     }
 
     /**
@@ -1441,16 +1567,6 @@ class DoraTabBar @JvmOverloads constructor(
     }
 
     /**
-     * 设置 Indicator 宽度是否根据标题宽度处理。
-     */
-    fun setIndicatorWidthEqualTitle(
-        indicatorWidthEqualTitle: Boolean
-    ) {
-        this.indicatorWidthWrapTitle = indicatorWidthEqualTitle
-        invalidate()
-    }
-
-    /**
      * 设置 Indicator 动画时长。
      *
      * @param duration 动画时长，单位：ms。
@@ -1976,8 +2092,7 @@ class DoraTabBar @JvmOverloads constructor(
             if (indicatorWidth >= 0) {
                 val width = indicatorWidth
                 indicatorLeft = tab.left + (tab.width - width) / 2f
-                indicatorRight =
-                    indicatorLeft + width
+                indicatorRight = indicatorLeft + width
             }
             scrollToCurrentTab()
             invalidate()
@@ -2030,29 +2145,23 @@ class DoraTabBar @JvmOverloads constructor(
         if (position !in 0 until tabCount) {
             return
         }
-        val currentView =
-            tabContainer.getChildAt(position)
-                ?: return
+        val currentView = tabContainer.getChildAt(position) ?: return
         val nextPosition =
             if (positionOffset > 0f) {
                 (position + 1).coerceAtMost(tabCount - 1)
             } else {
                 position
             }
-        val nextView =
-            tabContainer.getChildAt(nextPosition)
-                ?: return
+        val nextView = tabContainer.getChildAt(nextPosition) ?: return
         val offset =
             positionOffset.coerceIn(0f, 1f)
         val currentRect =
             getIndicatorRectForTab(currentView)
         val nextRect =
             getIndicatorRectForTab(nextView)
-        indicatorLeft =
-            currentRect.first +
+        indicatorLeft = currentRect.first +
                     (nextRect.first - currentRect.first) * offset
-        indicatorRight =
-            currentRect.second +
+        indicatorRight = currentRect.second +
                     (nextRect.second - currentRect.second) * offset
         // ViewPager2 正在滑动时，同步更新当前选中 Tab。
         if (offset >= 0.5f) {
@@ -2060,7 +2169,6 @@ class DoraTabBar @JvmOverloads constructor(
         } else {
             updateTabSelection(position)
         }
-
         invalidate()
     }
 
