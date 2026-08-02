@@ -43,7 +43,6 @@ binding.tabBar.setTabs(arrayOf(
                 DoraTabBar.DoraTab("频道2"),
                 DoraTabBar.DoraTab("频道3"),
             ))
-
 binding.tabBar.setOnTabSelectListener(
     object : DoraTabBar.OnTabSelectListener {
 
