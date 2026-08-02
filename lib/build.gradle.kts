@@ -6,11 +6,10 @@ plugins {
 
 android {
     namespace = "dora.widget.tabbar"
-    compileSdk = 34
+    compileSdk = 36
 
     defaultConfig {
         minSdk = 21
-        targetSdk = 34
     }
     buildTypes {
         release {
@@ -24,6 +23,11 @@ android {
     }
 }
 
+kotlin {
+    // 安装了多jdk的情况下，编译时自动帮你选jvm，否则需要手动操作IDE
+    jvmToolchain(17)
+}
+
 dependencies {
     implementation("androidx.appcompat:appcompat:1.7.1")
 }
@@ -35,7 +39,7 @@ afterEvaluate {
                 from(components["release"])
                 groupId = "com.github.dora4"
                 artifactId = rootProject.project.name
-                version = "1.7"
+                version = "1.8"
             }
         }
     }
