@@ -2180,7 +2180,7 @@ class DoraTabBar @JvmOverloads constructor(
         tab: Int
     ): TextView? {
         val tabView = tabContainer.getChildAt(tab)
-        return tabView.findViewById<View?>(
+        return tabView.findViewById<View>(
             R.id.tv_tab_title
         ) as TextView?
     }
@@ -2204,7 +2204,7 @@ class DoraTabBar @JvmOverloads constructor(
         val tabView = tabContainer.getChildAt(position)
         // 获取 Badge。
         val badgeView =
-            tabView.findViewById<View?>(
+            tabView.findViewById<View>(
                 R.id.bv_num
             ) as BadgeView?
         if (badgeView != null) {
@@ -2287,7 +2287,7 @@ class DoraTabBar @JvmOverloads constructor(
         val tabView =
             tabContainer.getChildAt(position)
         val badgeView =
-            tabView.findViewById<View?>(
+            tabView.findViewById<View>(
                 R.id.bv_num
             ) as BadgeView?
         if (badgeView != null) {
@@ -2413,7 +2413,7 @@ class DoraTabBar @JvmOverloads constructor(
             position = this.tabCount - 1
         }
         val tabView = tabContainer.getChildAt(position)
-        return tabView.findViewById<View?>(
+        return tabView.findViewById<View>(
             R.id.bv_num
         ) as BadgeView?
     }

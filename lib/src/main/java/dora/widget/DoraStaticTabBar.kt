@@ -530,9 +530,9 @@ class DoraStaticTabLayout
             position = this.tabCount - 1
         }
         val tabView = tabContainer.getChildAt(position)
-        val tipView: BadgeView? = tabView.findViewById<View?>(R.id.bv_num) as BadgeView?
-        if (tipView != null) {
-            tipView.visibility = GONE
+        val badgeView: BadgeView? = tabView.findViewById<View>(R.id.bv_num) as BadgeView?
+        if (badgeView != null) {
+            badgeView.visibility = GONE
         }
     }
 
@@ -563,7 +563,7 @@ class DoraStaticTabLayout
             position = this.tabCount - 1
         }
         val tabView = tabContainer.getChildAt(position)
-        return tabView.findViewById<View?>(R.id.bv_num) as BadgeView?
+        return tabView.findViewById<View>(R.id.bv_num) as BadgeView?
     }
 
     fun setOnTabSelectListener(listener: OnTabSelectListener) {
