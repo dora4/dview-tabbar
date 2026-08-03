@@ -32,7 +32,7 @@ import dora.widget.tabbar.R
 /**
  * 简单的静态Tab Bar，仅支持文字，最多只能支持一屏，且只支持fragment，不支持viewpager2。
  */
-class DoraStaticTabLayout
+class DoraStaticTabBar
     @JvmOverloads constructor(
         context: Context,
         attrs: AttributeSet? = null,
