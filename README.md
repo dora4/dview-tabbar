@@ -73,9 +73,9 @@ binding.tabBar.setOnTabSelectListener(object : DoraStaticTabLayout.OnTabSelectLi
 ```kotlin
 binding.tabBar.setTabs(
                 DoraTabBar.DoraTab("频道1"),
-                DoraTabBar.DoraTab("频道2"),
-                DoraTabBar.DoraTab("频道3")
+                DoraTabBar.DoraTab("频道2")
             )
+binding.tabBar.addTab(DoraTabBar.DoraTab("频道3"))
 binding.tabBar.setOnTabSelectListener(
     object : DoraTabBar.OnTabSelectListener {
 
