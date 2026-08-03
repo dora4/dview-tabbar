@@ -62,8 +62,8 @@
     <attr name="dview_tb_iconMargin" format="dimension|reference"/>
 
     <attr name="dview_tb_barColor" format="color|reference"/>
-    <attr name="dview_tb_barStrokeColor" format="dimension|reference"/>
-    <attr name="dview_tb_barStrokeWidth" format="color|reference"/>
+    <attr name="dview_tb_barStrokeColor" format="color|reference"/>
+    <attr name="dview_tb_barStrokeWidth" format="dimension|reference"/>
 
     <declare-styleable name="DoraTabBar">
         <attr name="dview_tb_indicatorWidth"/>
