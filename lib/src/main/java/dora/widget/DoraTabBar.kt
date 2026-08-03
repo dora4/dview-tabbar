@@ -185,7 +185,7 @@ class DoraTabBar @JvmOverloads constructor(
      * value：
      *      是否已经初始化过 Badge 位置。
      */
-    private val initSetMap = SparseArray<Boolean>()
+    private val initMap = SparseArray<Boolean>()
 
     /**
      * 三角形 Indicator 的 Path。
@@ -437,7 +437,7 @@ class DoraTabBar @JvmOverloads constructor(
             indicatorColor = getColor(
                 R.styleable.DoraTabBar_dview_tb_indicatorColor,
                 if (indicatorType == INDICATOR_BLOCK) {
-                    "#4B6A87".toColorInt()
+                    "#4CAF50".toColorInt()
                 } else {
                     "#FFFFFF".toColorInt()
                 }
@@ -2216,8 +2216,8 @@ class DoraTabBar @JvmOverloads constructor(
             // 如果已经初始化过位置，
             // 则不重复计算。
             if (
-                initSetMap.get(position) != null &&
-                initSetMap.get(position)
+                initMap.get(position) != null &&
+                initMap.get(position)
             ) {
                 return
             }
@@ -2249,7 +2249,7 @@ class DoraTabBar @JvmOverloads constructor(
                 )
             }
             // 标记当前 Badge 已初始化。
-            initSetMap.put(
+            initMap.put(
                 position,
                 true
             )
