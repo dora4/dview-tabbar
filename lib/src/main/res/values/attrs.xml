@@ -124,7 +124,6 @@
         <attr name="dview_tb_tabPadding" />
         <attr name="dview_tb_tabIsDivided" />
         <attr name="dview_tb_tabWidth" />
-
         <attr name="dview_tb_tabTextSize" />
         <attr name="dview_tb_tabSelectedTextColor" />
         <attr name="dview_tb_tabUnselectedTextColor" />
